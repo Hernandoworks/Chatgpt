@@ -1,0 +1,78 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Pipeline Configuration",
+  "description": "Schema for defining a multi-step pipeline run — agent sequence, prompt templates, workflows, validators, and expected output.",
+  "type": "object",
+  "required": ["pipeline_id", "version", "steps", "expected_output"],
+  "properties": {
+    "pipeline_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$",
+      "description": "Unique pipeline identifier"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "trigger": {
+      "type": "object",
+      "required": ["type", "source"],
+      "properties": {
+        "type": { "type": "string", "enum": ["issue", "pr", "manual", "schedule", "webhook"] },
+        "source": { "type": "string", "description": "Issue label, PR event, or cron expression" }
+      }
+    },
+    "steps": {
+      "type": "array",
+      "description": "Ordered list of pipeline steps. Each step is executed by one agent.",
+      "items": {
+        "type": "object",
+        "required": ["order", "agent", "prompt", "validators", "output_artifact"],
+        "properties": {
+          "order": { "type": "integer", "minimum": 1 },
+          "agent": { "type": "string", "description": "Agent ID responsible for this step" },
+          "prompt": { "type": "string", "description": "Prompt template ID to use" },
+          "validators": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Validator IDs to run after this step"
+          },
+          "output_artifact": {
+            "type": "string",
+            "description": "What this step produces (e.g. component-files, api-code, test-report)"
+          },
+          "retry_on_failure": { "type": "boolean", "default": true },
+          "max_retries": { "type": "integer", "minimum": 0, "default": 2 }
+        }
+      },
+      "minItems": 1
+    },
+    "expected_output": {
+      "type": "object",
+      "required": ["type", "location"],
+      "properties": {
+        "type": { "type": "string", "enum": ["pull-request", "artifact", "report", "release"] },
+        "location": {
+          "type": "string",
+          "description": "Where the output is stored (e.g. branch name, artifact path)"
+        }
+      }
+    },
+    "gates": {
+      "type": "object",
+      "description": "Overall pipeline gates that must pass before completion",
+      "properties": {
+        "pre_flight": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Validators to run before pipeline starts"
+        },
+        "post_flight": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Validators to run before pipeline completes"
+        }
+      }
+    }
+  }
+}

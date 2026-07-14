@@ -1,0 +1,85 @@
+{
+  "id": "prompt-schema",
+  "version": "1.0.0",
+  "description": "Validates that .ai/prompts/ markdown files conform to prompt-template.schema.json",
+  "checks": [
+    {
+      "id": "has-frontmatter",
+      "description": "File must start with YAML frontmatter between --- delimiters",
+      "severity": "error",
+      "enforce": true
+    },
+    {
+      "id": "frontmatter-id",
+      "description": "Frontmatter must contain 'id' matching filename (without .md)",
+      "severity": "error",
+      "enforce": true
+    },
+    {
+      "id": "frontmatter-version",
+      "description": "Frontmatter must contain 'version' in SemVer format",
+      "severity": "error",
+      "enforce": true
+    },
+    {
+      "id": "frontmatter-agents",
+      "description": "Frontmatter must contain 'agents' array with at least 1 entry",
+      "severity": "error",
+      "enforce": true
+    },
+    {
+      "id": "frontmatter-output",
+      "description": "Frontmatter must contain 'output' type",
+      "severity": "error",
+      "enforce": true
+    },
+    {
+      "id": "section-role",
+      "description": "Must contain ## Role section",
+      "severity": "error",
+      "enforce": true
+    },
+    {
+      "id": "section-mission",
+      "description": "Must contain ## Mission section",
+      "severity": "error",
+      "enforce": true
+    },
+    {
+      "id": "section-standards",
+      "description": "Must contain ## Standards section",
+      "severity": "error",
+      "enforce": true
+    },
+    {
+      "id": "section-requirements",
+      "description": "Must contain ## Requirements section with {{requirements}} variable",
+      "severity": "error",
+      "enforce": true
+    },
+    {
+      "id": "section-output",
+      "description": "Must contain ## Output section",
+      "severity": "error",
+      "enforce": true
+    },
+    {
+      "id": "variables-documented",
+      "description": "All {{variables}} used in body must be listed in frontmatter required_variables or optional_variables",
+      "severity": "warning",
+      "enforce": true
+    },
+    {
+      "id": "no-unclosed-variables",
+      "description": "No unclosed {{ variable patterns — each {{ must have a corresponding }}",
+      "severity": "error",
+      "enforce": true
+    },
+    {
+      "id": "version-history",
+      "description": "Should contain ## Version History section listing changes per version",
+      "severity": "suggestion",
+      "enforce": false
+    }
+  ]
+}

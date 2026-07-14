@@ -1,3 +1,12 @@
+---
+id: build-google-sheet
+version: 2.0.0
+agents: [workflow-engineer]
+prompts: [build-google-sheet]
+validators: [prompt-schema]
+triggers: [phoenix/google-sheet]
+---
+
 # Workflow: Build Google Sheet
 
 ## Trigger
@@ -12,6 +21,18 @@ Issue labeled `phoenix/google-sheet`
 4. Call DeepSeek API
 5. Output structured sheet specification
 6. Create documentation in `06-docs/sheets/`
+
+## Handoffs
+
+- Workflow Engineer → Sheet Spec: structured sheet specification with formulas, validations, and formatting
+
+## Validation Gates
+
+- [ ] TypeScript compiles with zero errors
+- [ ] ESLint passes with zero errors
+- [ ] All tests pass
+- [ ] Prettier format check passes
+- [ ] Build succeeds
 
 ## Output
 

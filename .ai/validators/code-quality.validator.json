@@ -1,0 +1,61 @@
+{
+  "id": "code-quality",
+  "version": "1.0.0",
+  "description": "Code quality gates enforced during PR review and before merge. All checks must pass.",
+  "checks": [
+    {
+      "id": "typecheck",
+      "description": "TypeScript compiles with zero errors (pnpm typecheck)",
+      "severity": "error",
+      "enforce": true,
+      "command": "pnpm typecheck"
+    },
+    {
+      "id": "lint",
+      "description": "ESLint passes with zero errors (pnpm lint)",
+      "severity": "error",
+      "enforce": true,
+      "command": "pnpm lint"
+    },
+    {
+      "id": "test",
+      "description": "All tests pass (pnpm test)",
+      "severity": "error",
+      "enforce": true,
+      "command": "pnpm test"
+    },
+    {
+      "id": "format",
+      "description": "Prettier formatting check passes (pnpm format:check)",
+      "severity": "error",
+      "enforce": true,
+      "command": "pnpm format:check"
+    },
+    {
+      "id": "build",
+      "description": "Application builds without errors (pnpm build)",
+      "severity": "error",
+      "enforce": true,
+      "command": "pnpm build"
+    },
+    {
+      "id": "coverage-minimum",
+      "description": "Test coverage must not decrease from baseline",
+      "severity": "warning",
+      "enforce": true,
+      "threshold": 80
+    },
+    {
+      "id": "no-skip-tests",
+      "description": "No .skip or .todo on tests. Focused debugging is acceptable if reverted.",
+      "severity": "warning",
+      "enforce": false
+    },
+    {
+      "id": "no-console-log",
+      "description": "No console.log in committed code (warn-level in ESLint config)",
+      "severity": "warning",
+      "enforce": false
+    }
+  ]
+}

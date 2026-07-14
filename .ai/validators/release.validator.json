@@ -1,0 +1,64 @@
+{
+  "id": "release",
+  "version": "1.0.0",
+  "description": "Release gates enforced before a new version is tagged and published.",
+  "checks": [
+    {
+      "id": "version-bumped",
+      "description": "Version has been bumped since last release (check package.json and CHANGELOG.md)",
+      "severity": "error",
+      "enforce": true
+    },
+    {
+      "id": "changelog-updated",
+      "description": "CHANGELOG.md has been updated for this release",
+      "severity": "error",
+      "enforce": true
+    },
+    {
+      "id": "semver-valid",
+      "description": "Version follows SemVer (major.minor.patch) with optional pre-release suffix",
+      "severity": "error",
+      "enforce": true,
+      "pattern": "^\\d+\\.\\d+\\.\\d+(-[a-zA-Z0-9.]+)?$"
+    },
+    {
+      "id": "all-tasks-complete",
+      "description": "All tasks for this milestone are marked COMPLETED in TASK_REGISTER.md",
+      "severity": "error",
+      "enforce": true
+    },
+    {
+      "id": "code-quality-pass",
+      "description": "All code-quality validator checks pass",
+      "severity": "error",
+      "enforce": true,
+      "depends_on": "code-quality"
+    },
+    {
+      "id": "security-pass",
+      "description": "All security validator checks pass",
+      "severity": "error",
+      "enforce": true,
+      "depends_on": "security"
+    },
+    {
+      "id": "tag-exists",
+      "description": "Git tag exists for this version (v{version})",
+      "severity": "error",
+      "enforce": false
+    },
+    {
+      "id": "release-notes-written",
+      "description": "Release notes have been generated for this version",
+      "severity": "warning",
+      "enforce": true
+    },
+    {
+      "id": "migration-notes",
+      "description": "Breaking changes include migration notes in the release",
+      "severity": "warning",
+      "enforce": false
+    }
+  ]
+}

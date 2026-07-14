@@ -119,7 +119,13 @@ All agents have access to:
 - `.opencode/` — project standards, architecture, stack, rules, memory
 - `06-docs/project/` — task register, milestones, build summary, progress
 - Repository root — full codebase visibility
-- `.ai/` — prompts, workflows, agent definitions
+- `.ai/` — prompts, workflows, agent definitions, schemas, validators, agenda
+
+## Cross-Reference
+
+See `.ai/agenda.json` for the complete mapping of each agent to its prompts, workflows, validators, and triggers.
+
+See `.ai/agents/AGENTS_GUIDE.md` for the operations manual covering invocation, lifecycle, handoff protocol, quality gates, and troubleshooting.
 
 ## Quality Gates
 

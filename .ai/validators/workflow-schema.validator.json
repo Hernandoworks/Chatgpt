@@ -1,0 +1,97 @@
+{
+  "id": "workflow-schema",
+  "version": "1.0.0",
+  "description": "Validates that .ai/workflows/ markdown files conform to workflow.schema.json",
+  "checks": [
+    {
+      "id": "has-frontmatter",
+      "description": "File must start with YAML frontmatter",
+      "severity": "error",
+      "enforce": true
+    },
+    {
+      "id": "frontmatter-id",
+      "description": "Frontmatter must contain 'id' matching filename",
+      "severity": "error",
+      "enforce": true
+    },
+    {
+      "id": "frontmatter-version",
+      "description": "Frontmatter must contain 'version'",
+      "severity": "error",
+      "enforce": true
+    },
+    {
+      "id": "frontmatter-agents",
+      "description": "Frontmatter must list agents in execution order",
+      "severity": "error",
+      "enforce": true
+    },
+    {
+      "id": "frontmatter-prompts",
+      "description": "Frontmatter must list prompt IDs used",
+      "severity": "error",
+      "enforce": true
+    },
+    {
+      "id": "frontmatter-validators",
+      "description": "Frontmatter must list validator IDs",
+      "severity": "warning",
+      "enforce": true
+    },
+    {
+      "id": "frontmatter-triggers",
+      "description": "Frontmatter must list trigger label patterns",
+      "severity": "error",
+      "enforce": true
+    },
+    {
+      "id": "section-trigger",
+      "description": "Must contain ## Trigger section describing when workflow runs",
+      "severity": "error",
+      "enforce": true
+    },
+    {
+      "id": "section-steps",
+      "description": "Must contain ## Steps with ordered list",
+      "severity": "error",
+      "enforce": true
+    },
+    {
+      "id": "section-handoffs",
+      "description": "Must contain ## Handoffs section describing agent transitions",
+      "severity": "error",
+      "enforce": true
+    },
+    {
+      "id": "section-gates",
+      "description": "Must contain ## Validation Gates section with checklist",
+      "severity": "error",
+      "enforce": true
+    },
+    {
+      "id": "section-output",
+      "description": "Must contain ## Output section describing deliverables",
+      "severity": "error",
+      "enforce": true
+    },
+    {
+      "id": "agents-must-exist",
+      "description": "All agents referenced must exist in .ai/agents/index.json",
+      "severity": "error",
+      "enforce": true
+    },
+    {
+      "id": "prompts-must-exist",
+      "description": "All prompts referenced must exist in .ai/prompts/",
+      "severity": "error",
+      "enforce": true
+    },
+    {
+      "id": "validators-must-exist",
+      "description": "All validators referenced must exist in .ai/validators/",
+      "severity": "warning",
+      "enforce": true
+    }
+  ]
+}

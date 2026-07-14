@@ -1,0 +1,66 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Workflow Definition",
+  "description": "Schema for .ai/workflows/ workflow definition markdown files. Each workflow must have YAML frontmatter and structured sections.",
+  "type": "object",
+  "properties": {
+    "frontmatter": {
+      "type": "object",
+      "description": "YAML frontmatter between --- delimiters",
+      "required": ["id", "version", "agents", "prompts", "validators", "triggers"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]+$",
+          "description": "Unique kebab-case identifier"
+        },
+        "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+        "agents": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1,
+          "description": "Agents involved in this workflow in order"
+        },
+        "prompts": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1,
+          "description": "Prompt template IDs used in this workflow"
+        },
+        "validators": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Validator IDs that must pass at workflow gates"
+        },
+        "triggers": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^[a-z]+/[a-z-]+$" },
+          "description": "Issue label patterns or events that trigger this workflow (e.g. phoenix/ui-component)"
+        }
+      }
+    },
+    "sections": {
+      "type": "array",
+      "description": "Required markdown sections in order",
+      "items": {
+        "type": "string",
+        "enum": ["Trigger", "Steps", "Handoffs", "Validation Gates", "Output"]
+      },
+      "minItems": 5
+    },
+    "handoffs": {
+      "type": "array",
+      "description": "Handoff points between agents, each with from/to/artifact",
+      "items": {
+        "type": "object",
+        "required": ["from", "to", "artifact"],
+        "properties": {
+          "from": { "type": "string", "description": "Source agent ID" },
+          "to": { "type": "string", "description": "Target agent ID" },
+          "artifact": { "type": "string", "description": "What is passed between agents" }
+        }
+      }
+    }
+  },
+  "required": ["frontmatter", "sections"]
+}

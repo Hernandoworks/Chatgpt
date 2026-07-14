@@ -1,0 +1,55 @@
+{
+  "id": "agent-schema",
+  "version": "1.0.0",
+  "description": "Validates that .ai/agents/ markdown files conform to agent.schema.json",
+  "checks": [
+    {
+      "id": "section-mission",
+      "description": "Must contain ## Mission section (1 sentence, max 200 chars)",
+      "severity": "error",
+      "enforce": true
+    },
+    {
+      "id": "section-scope",
+      "description": "Must contain ## Scope section with 3+ bullet items",
+      "severity": "error",
+      "enforce": true
+    },
+    {
+      "id": "section-inputs",
+      "description": "Must contain ## Inputs section with 1+ bullet items",
+      "severity": "error",
+      "enforce": true
+    },
+    {
+      "id": "section-outputs",
+      "description": "Must contain ## Outputs section with 1+ bullet items",
+      "severity": "error",
+      "enforce": true
+    },
+    {
+      "id": "section-rules",
+      "description": "Must contain ## Rules section with 2+ bullet items",
+      "severity": "error",
+      "enforce": true
+    },
+    {
+      "id": "registered-in-index",
+      "description": "Agent must have an entry in .ai/agents/index.json",
+      "severity": "error",
+      "enforce": true
+    },
+    {
+      "id": "registered-in-agenda",
+      "description": "Agent must have a mapping in .ai/agenda.json",
+      "severity": "warning",
+      "enforce": true
+    },
+    {
+      "id": "mission-length",
+      "description": "Mission must be 1 sentence (no line breaks)",
+      "severity": "warning",
+      "enforce": false
+    }
+  ]
+}

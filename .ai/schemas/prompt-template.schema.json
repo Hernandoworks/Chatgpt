@@ -1,0 +1,60 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Prompt Template",
+  "description": "Schema for .ai/prompts/ prompt template markdown files. Each prompt must have YAML frontmatter followed by structured sections.",
+  "type": "object",
+  "properties": {
+    "frontmatter": {
+      "type": "object",
+      "description": "YAML frontmatter between --- delimiters at the top of the file",
+      "required": ["id", "version", "agents", "output", "required_variables"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]+$",
+          "description": "Unique kebab-case identifier matching the filename (without .md)"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "description": "SemVer version for the prompt template"
+        },
+        "agents": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1,
+          "description": "Agent IDs that use this prompt (must exist in agent index.json)"
+        },
+        "output": {
+          "type": "string",
+          "description": "Type of output this prompt produces (e.g. component-files, api-code, documentation)"
+        },
+        "required_variables": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^[a-z_]+$" },
+          "description": "Template variables that must be provided when rendering"
+        },
+        "optional_variables": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^[a-z_]+$" },
+          "description": "Template variables that may optionally be provided"
+        }
+      }
+    },
+    "sections": {
+      "type": "array",
+      "description": "Markdown sections in order. Each must be present exactly once.",
+      "items": {
+        "type": "string",
+        "enum": ["Role", "Mission", "Standards", "Requirements", "Context", "Output"]
+      },
+      "minItems": 6
+    },
+    "template_variables": {
+      "type": "array",
+      "description": "All {{variable}} placeholders used in the template body",
+      "items": { "type": "string", "pattern": "^\\{\\{[a-z_]+\\}\\}$" }
+    }
+  },
+  "required": ["frontmatter", "sections", "template_variables"]
+}

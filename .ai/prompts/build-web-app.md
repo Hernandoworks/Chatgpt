@@ -1,3 +1,12 @@
+---
+id: build-web-app
+version: 2.0.0
+agents: [solution-architect, ui-engineer, api-engineer]
+output: page-code
+required_variables: [requirements, context]
+optional_variables: [code]
+---
+
 # Prompt: Build Web Application
 
 ## Role
@@ -47,3 +56,15 @@ Provide:
 1. File tree of all files to create/modify
 2. Complete source code for each file
 3. Tests covering: render, variants, states, events, edge cases
+
+## Version History
+
+### 2.0.0
+
+- Added YAML frontmatter with id, version, agents, output, and variable declarations
+- Standardized section headers to: Role, Mission, Standards, Requirements, Context, Output
+- All {{variable}} placeholders now documented in frontmatter
+
+### 1.0.0
+
+- Initial prompt template

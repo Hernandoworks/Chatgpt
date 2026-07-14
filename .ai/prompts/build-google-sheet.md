@@ -1,3 +1,12 @@
+---
+id: build-google-sheet
+version: 2.0.0
+agents: [workflow-engineer]
+output: sheet-spec
+required_variables: [requirements, context]
+optional_variables: [code]
+---
+
 # Prompt: Build Google Sheet Workbook
 
 ## Role
@@ -35,3 +44,15 @@ Provide:
 3. Data validation rules
 4. Conditional formatting rules
 5. Usage instructions
+
+## Version History
+
+### 2.0.0
+
+- Added YAML frontmatter with id, version, agents, output, and variable declarations
+- Standardized section headers to: Role, Mission, Standards, Requirements, Context, Output
+- All {{variable}} placeholders now documented in frontmatter
+
+### 1.0.0
+
+- Initial prompt template

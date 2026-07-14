@@ -1,3 +1,12 @@
+---
+id: build-apps-script
+version: 2.0.0
+agents: [integration-engineer]
+output: apps-script-code
+required_variables: [requirements, context]
+optional_variables: [code]
+---
+
 # Prompt: Build Google Apps Script
 
 ## Role
@@ -35,3 +44,15 @@ Provide:
 3. Trigger setup instructions
 4. OAuth scopes required
 5. Test cases
+
+## Version History
+
+### 2.0.0
+
+- Added YAML frontmatter with id, version, agents, output, and variable declarations
+- Standardized section headers to: Role, Mission, Standards, Requirements, Context, Output
+- All {{variable}} placeholders now documented in frontmatter
+
+### 1.0.0
+
+- Initial prompt template

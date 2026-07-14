@@ -1,0 +1,91 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Issue Request",
+  "description": "Schema for validating incoming issue-based feature requests against the phoenix-request.yml template.",
+  "type": "object",
+  "required": ["request_type", "description", "priority", "area"],
+  "properties": {
+    "request_type": {
+      "type": "string",
+      "enum": [
+        "Web Application",
+        "UI Component",
+        "Dashboard",
+        "API",
+        "SQL / Database",
+        "Google Sheet",
+        "Google Apps Script",
+        "Documentation",
+        "Tests",
+        "Refactoring",
+        "Code Review",
+        "Other"
+      ],
+      "description": "Type of work requested"
+    },
+    "description": {
+      "type": "string",
+      "minLength": 10,
+      "description": "Description of what to build or change"
+    },
+    "priority": {
+      "type": "string",
+      "enum": ["Critical", "High", "Medium", "Low"]
+    },
+    "area": {
+      "type": "string",
+      "enum": [
+        "Apps",
+        "Packages",
+        "Services",
+        "Database",
+        "Infra",
+        "Docs",
+        "Tools",
+        "CI/CD",
+        "Design System"
+      ]
+    },
+    "acceptance_criteria": {
+      "type": "string",
+      "description": "Optional acceptance criteria checklist"
+    },
+    "context": {
+      "type": "string",
+      "description": "Additional screenshots, references, or links"
+    }
+  },
+  "agent_mapping": {
+    "description": "Maps each request_type to the primary agent(s) that handle it",
+    "Web Application": {
+      "agents": ["solution-architect", "ui-engineer", "api-engineer"],
+      "workflow": "build-web-app"
+    },
+    "UI Component": {
+      "agents": ["ui-engineer", "design-system-engineer", "accessibility-specialist"],
+      "workflow": "build-ui-component"
+    },
+    "Dashboard": {
+      "agents": ["ui-engineer", "data-analyst", "ux-designer"],
+      "workflow": "build-dashboard"
+    },
+    "API": { "agents": ["api-engineer", "integration-engineer"], "workflow": "build-api" },
+    "SQL / Database": {
+      "agents": ["database-engineer", "domain-modeler"],
+      "workflow": "build-sql"
+    },
+    "Google Sheet": { "agents": ["workflow-engineer"], "workflow": "build-google-sheet" },
+    "Google Apps Script": { "agents": ["integration-engineer"], "workflow": "build-apps-script" },
+    "Documentation": {
+      "agents": ["documentation-engineer", "technical-writer"],
+      "workflow": "generate-documentation"
+    },
+    "Tests": { "agents": ["test-engineer", "qa-engineer"], "workflow": "generate-tests" },
+    "Refactoring": { "agents": ["quality-engineer"], "workflow": "refactor-code" },
+    "Code Review": {
+      "agents": ["quality-engineer", "security-engineer"],
+      "workflow": "review-code"
+    },
+    "Other": { "agents": ["agent-orchestrator"], "workflow": "triage-request" }
+  }
+}

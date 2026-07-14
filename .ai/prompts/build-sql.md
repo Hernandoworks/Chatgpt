@@ -1,3 +1,12 @@
+---
+id: build-sql
+version: 2.0.0
+agents: [database-engineer]
+output: sql-code
+required_variables: [requirements, context]
+optional_variables: [code]
+---
+
 # Prompt: Build SQL
 
 ## Role
@@ -34,3 +43,15 @@ Provide:
 2. Seed data SQL
 3. Index recommendations
 4. Query examples with EXPLAIN plans
+
+## Version History
+
+### 2.0.0
+
+- Added YAML frontmatter with id, version, agents, output, and variable declarations
+- Standardized section headers to: Role, Mission, Standards, Requirements, Context, Output
+- All {{variable}} placeholders now documented in frontmatter
+
+### 1.0.0
+
+- Initial prompt template

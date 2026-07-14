@@ -1,0 +1,47 @@
+{
+  "id": "security",
+  "version": "1.0.0",
+  "description": "Security gates enforced before merge and before release.",
+  "checks": [
+    {
+      "id": "npm-audit",
+      "description": "npm audit must have zero critical vulnerabilities (pnpm audit --audit-level=critical)",
+      "severity": "error",
+      "enforce": true,
+      "command": "pnpm audit --audit-level=critical"
+    },
+    {
+      "id": "no-secrets",
+      "description": "No secrets, tokens, or credentials in source code",
+      "severity": "error",
+      "enforce": true,
+      "pattern": "(''|\\\"\")(sk_|pk_|ghp_|gho_|ghu_|ghs_|ghr_)[A-Za-z0-9_]+(''|\\\"\")"
+    },
+    {
+      "id": "no-hardcoded-keys",
+      "description": "No hardcoded API keys or passwords in any file",
+      "severity": "error",
+      "enforce": true,
+      "pattern": "api[_-]?key|apikey|secret|password|passwd|credential"
+    },
+    {
+      "id": "dependency-review",
+      "description": "No new dependencies added without review",
+      "severity": "warning",
+      "enforce": false
+    },
+    {
+      "id": "sql-injection",
+      "description": "No raw string interpolation in SQL queries — use parameterized queries",
+      "severity": "error",
+      "enforce": true,
+      "pattern": "SELECT|INSERT|UPDATE|DELETE.*\\$\\{"
+    },
+    {
+      "id": "owasp-top10",
+      "description": "OWASP Top 10 review completed for this change",
+      "severity": "warning",
+      "enforce": false
+    }
+  ]
+}

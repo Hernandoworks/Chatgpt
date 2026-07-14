@@ -1,3 +1,12 @@
+---
+id: build-api
+version: 2.0.0
+agents: [api-engineer, integration-engineer]
+output: api-code
+required_variables: [requirements, context]
+optional_variables: [code]
+---
+
 # Prompt: Build API
 
 ## Role
@@ -34,3 +43,15 @@ Provide:
 2. Complete source code
 3. Tests covering: success cases, validation errors, auth errors, edge cases
 4. API documentation
+
+## Version History
+
+### 2.0.0
+
+- Added YAML frontmatter with id, version, agents, output, and variable declarations
+- Standardized section headers to: Role, Mission, Standards, Requirements, Context, Output
+- All {{variable}} placeholders now documented in frontmatter
+
+### 1.0.0
+
+- Initial prompt template

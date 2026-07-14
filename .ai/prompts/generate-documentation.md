@@ -1,3 +1,12 @@
+---
+id: generate-documentation
+version: 2.0.0
+agents: [documentation-engineer]
+output: documentation
+required_variables: [requirements, context]
+optional_variables: [code]
+---
+
 # Prompt: Generate Documentation
 
 ## Role
@@ -34,3 +43,15 @@ Provide:
 2. Code examples
 3. API reference (if applicable)
 4. Troubleshooting guide
+
+## Version History
+
+### 2.0.0
+
+- Added YAML frontmatter with id, version, agents, output, and variable declarations
+- Standardized section headers to: Role, Mission, Standards, Requirements, Context, Output
+- All {{variable}} placeholders now documented in frontmatter
+
+### 1.0.0
+
+- Initial prompt template

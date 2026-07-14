@@ -1,3 +1,12 @@
+---
+id: build-ui-component
+version: 2.0.0
+agents: [ui-engineer, design-system-engineer, accessibility-specialist]
+output: component-files
+required_variables: [requirements, context]
+optional_variables: [code]
+---
+
 # Prompt: Build UI Component
 
 ## Role
@@ -45,3 +54,15 @@ Provide:
 1. Complete source code for each file
 2. Tests covering: render, variants, states, events, edge cases
 3. Usage example
+
+## Version History
+
+### 2.0.0
+
+- Added YAML frontmatter with id, version, agents, output, and variable declarations
+- Standardized section headers to: Role, Mission, Standards, Requirements, Context, Output
+- All {{variable}} placeholders now documented in frontmatter
+
+### 1.0.0
+
+- Initial prompt template

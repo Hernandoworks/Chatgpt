@@ -1,3 +1,12 @@
+---
+id: build-web-app
+version: 2.0.0
+agents: [solution-architect, ui-engineer, api-engineer]
+prompts: [build-web-app]
+validators: [code-quality]
+triggers: [phoenix/web-app]
+---
+
 # Workflow: Build Web Application
 
 ## Trigger
@@ -20,6 +29,20 @@ Issue labeled `phoenix/web-app`
 
 - `{{requirements}}` — issue body
 - `{{context}}` — repository structure, dependency info, existing code relevant to the request
+
+## Handoffs
+
+- Solution Architect → UI Engineer: page layout spec, component breakdown, navigation flow
+- UI Engineer → API Engineer: required data shapes, mutation endpoints, auth requirements
+- API Engineer → Solution Architect: API contract, rate limits, error responses
+
+## Validation Gates
+
+- [ ] TypeScript compiles with zero errors
+- [ ] ESLint passes with zero errors
+- [ ] All tests pass
+- [ ] Prettier format check passes
+- [ ] Build succeeds
 
 ## Output
 

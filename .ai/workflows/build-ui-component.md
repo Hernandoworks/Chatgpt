@@ -1,3 +1,12 @@
+---
+id: build-ui-component
+version: 2.0.0
+agents: [ui-engineer]
+prompts: [build-ui-component, design-component]
+validators: [code-quality]
+triggers: [phoenix/ui-component]
+---
+
 # Workflow: Build UI Component
 
 ## Trigger
@@ -26,6 +35,19 @@ Issue labeled `phoenix/ui-component`
 ├── tests.tsx
 └── README.md
 ```
+
+## Handoffs
+
+- UI Engineer → Solution Architect: component API design, props interface, usage examples
+- UI Engineer → API Engineer: required data shapes, loading/error state expectations
+
+## Validation Gates
+
+- [ ] TypeScript compiles with zero errors
+- [ ] ESLint passes with zero errors
+- [ ] All tests pass
+- [ ] Prettier format check passes
+- [ ] Build succeeds
 
 ## Output
 

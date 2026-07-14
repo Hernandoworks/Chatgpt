@@ -1,0 +1,44 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Agent Definition",
+  "description": "Schema for .ai/agents/ agent definition markdown files. Each agent must have all required sections.",
+  "type": "object",
+  "properties": {
+    "sections": {
+      "type": "array",
+      "description": "Required markdown sections in order. Each must be present exactly once.",
+      "items": { "type": "string", "enum": ["Mission", "Scope", "Inputs", "Outputs", "Rules"] },
+      "minItems": 5
+    },
+    "mission": {
+      "type": "string",
+      "description": "Single-sentence mission statement",
+      "maxLength": 200
+    },
+    "scope": {
+      "type": "array",
+      "description": "List of responsibilities",
+      "items": { "type": "string" },
+      "minItems": 3
+    },
+    "inputs": {
+      "type": "array",
+      "description": "List of inputs the agent consumes",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "outputs": {
+      "type": "array",
+      "description": "List of outputs the agent produces",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "rules": {
+      "type": "array",
+      "description": "List of operational rules",
+      "items": { "type": "string" },
+      "minItems": 2
+    }
+  },
+  "required": ["sections", "mission", "scope", "inputs", "outputs", "rules"]
+}

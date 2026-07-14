@@ -1,0 +1,222 @@
+{
+  "version": "1.0.0",
+  "description": "Phoenix Agent Agenda — cross-reference mapping each agent to its prompts, workflows, validators, and triggers",
+  "mappings": [
+    {
+      "agent": "agent-orchestrator",
+      "layer": "engineering",
+      "prompts": ["triage-request", "build-pipeline"],
+      "workflows": ["triage-request"],
+      "validators": ["prompt-schema", "workflow-schema", "agent-schema"],
+      "triggers": ["phoenix/*", "issues"]
+    },
+    {
+      "agent": "project-manager",
+      "layer": "engineering",
+      "prompts": ["plan-feature"],
+      "workflows": ["plan-feature"],
+      "validators": ["prompt-schema"],
+      "triggers": ["phoenix/*"]
+    },
+    {
+      "agent": "solution-architect",
+      "layer": "engineering",
+      "prompts": ["build-web-app", "build-api"],
+      "workflows": ["plan-feature", "build-web-app", "build-api"],
+      "validators": ["prompt-schema"],
+      "triggers": ["phoenix/web-app", "phoenix/api"]
+    },
+    {
+      "agent": "repository-engineer",
+      "layer": "engineering",
+      "prompts": [],
+      "workflows": ["refactor-code"],
+      "validators": ["code-quality"],
+      "triggers": ["phoenix/refactor"]
+    },
+    {
+      "agent": "ui-engineer",
+      "layer": "engineering",
+      "prompts": ["build-ui-component", "build-web-app", "build-dashboard", "design-component"],
+      "workflows": ["build-ui-component", "build-web-app", "build-dashboard", "design-component"],
+      "validators": ["code-quality"],
+      "triggers": ["phoenix/ui-component", "phoenix/web-app", "phoenix/dashboard"]
+    },
+    {
+      "agent": "api-engineer",
+      "layer": "engineering",
+      "prompts": ["build-api", "build-web-app"],
+      "workflows": ["build-api", "build-web-app"],
+      "validators": ["code-quality"],
+      "triggers": ["phoenix/api", "phoenix/web-app"]
+    },
+    {
+      "agent": "database-engineer",
+      "layer": "engineering",
+      "prompts": ["write-schema", "create-migration", "build-sql"],
+      "workflows": ["build-sql"],
+      "validators": ["code-quality"],
+      "triggers": ["phoenix/sql", "phoenix/database"]
+    },
+    {
+      "agent": "devops-engineer",
+      "layer": "engineering",
+      "prompts": [],
+      "workflows": ["audit-security", "release-pipeline"],
+      "validators": ["security", "release"],
+      "triggers": ["phoenix/release", "phoenix/deploy"]
+    },
+    {
+      "agent": "security-engineer",
+      "layer": "engineering",
+      "prompts": ["conduct-security-audit", "review-code"],
+      "workflows": ["audit-security", "review-code"],
+      "validators": ["security"],
+      "triggers": ["phoenix/security", "phoenix/review"]
+    },
+    {
+      "agent": "test-engineer",
+      "layer": "engineering",
+      "prompts": ["generate-tests"],
+      "workflows": [],
+      "validators": ["code-quality"],
+      "triggers": ["phoenix/tests"]
+    },
+    {
+      "agent": "qa-engineer",
+      "layer": "engineering",
+      "prompts": ["write-test-plan"],
+      "workflows": [],
+      "validators": ["code-quality"],
+      "triggers": ["phoenix/tests"]
+    },
+    {
+      "agent": "quality-engineer",
+      "layer": "engineering",
+      "prompts": ["refactor-code", "review-code"],
+      "workflows": ["refactor-code", "review-code", "release-pipeline"],
+      "validators": ["code-quality", "release"],
+      "triggers": ["phoenix/refactor", "phoenix/review", "phoenix/release"]
+    },
+    {
+      "agent": "documentation-engineer",
+      "layer": "engineering",
+      "prompts": ["generate-documentation"],
+      "workflows": ["generate-documentation"],
+      "validators": ["prompt-schema"],
+      "triggers": ["phoenix/docs"]
+    },
+    {
+      "agent": "prompt-engineer",
+      "layer": "engineering",
+      "prompts": [],
+      "workflows": [],
+      "validators": ["prompt-schema"],
+      "triggers": []
+    },
+    {
+      "agent": "release-manager",
+      "layer": "engineering",
+      "prompts": ["write-release-notes"],
+      "workflows": ["release-pipeline"],
+      "validators": ["release"],
+      "triggers": ["phoenix/release"]
+    },
+    {
+      "agent": "product-manager",
+      "layer": "product",
+      "prompts": ["plan-feature"],
+      "workflows": ["plan-feature"],
+      "validators": ["prompt-schema"],
+      "triggers": ["phoenix/feature"]
+    },
+    {
+      "agent": "user-researcher",
+      "layer": "product",
+      "prompts": [],
+      "workflows": ["plan-feature"],
+      "validators": [],
+      "triggers": ["phoenix/feature"]
+    },
+    {
+      "agent": "technical-writer",
+      "layer": "product",
+      "prompts": ["write-release-notes"],
+      "workflows": [],
+      "validators": [],
+      "triggers": ["phoenix/release"]
+    },
+    {
+      "agent": "ux-designer",
+      "layer": "design",
+      "prompts": ["design-component", "build-dashboard"],
+      "workflows": ["design-component", "build-dashboard"],
+      "validators": ["prompt-schema"],
+      "triggers": ["phoenix/ui-component", "phoenix/dashboard"]
+    },
+    {
+      "agent": "visual-designer",
+      "layer": "design",
+      "prompts": ["design-component", "design-system-token"],
+      "workflows": ["design-component"],
+      "validators": ["prompt-schema"],
+      "triggers": ["phoenix/ui-component"]
+    },
+    {
+      "agent": "interaction-designer",
+      "layer": "design",
+      "prompts": ["design-component"],
+      "workflows": ["design-component"],
+      "validators": [],
+      "triggers": ["phoenix/ui-component"]
+    },
+    {
+      "agent": "accessibility-specialist",
+      "layer": "design",
+      "prompts": ["design-component"],
+      "workflows": ["design-component"],
+      "validators": [],
+      "triggers": ["phoenix/ui-component"]
+    },
+    {
+      "agent": "design-system-engineer",
+      "layer": "design",
+      "prompts": ["design-system-token", "build-ui-component"],
+      "workflows": ["design-component"],
+      "validators": ["code-quality"],
+      "triggers": ["phoenix/ui-component"]
+    },
+    {
+      "agent": "domain-modeler",
+      "layer": "business",
+      "prompts": ["write-schema"],
+      "workflows": ["plan-feature", "build-sql"],
+      "validators": ["prompt-schema"],
+      "triggers": ["phoenix/feature", "phoenix/sql"]
+    },
+    {
+      "agent": "workflow-engineer",
+      "layer": "business",
+      "prompts": ["build-google-sheet"],
+      "workflows": ["build-google-sheet"],
+      "validators": ["prompt-schema"],
+      "triggers": ["phoenix/google-sheet"]
+    },
+    {
+      "agent": "integration-engineer",
+      "layer": "business",
+      "prompts": ["build-api", "build-apps-script"],
+      "workflows": ["build-api", "build-apps-script"],
+      "validators": ["code-quality"],
+      "triggers": ["phoenix/api", "phoenix/apps-script"]
+    },
+    {
+      "agent": "data-analyst",
+      "layer": "business",
+      "prompts": [],
+      "workflows": ["build-dashboard"],
+      "validators": [],
+      "triggers": ["phoenix/dashboard"]
+    }
+  ]
+}
