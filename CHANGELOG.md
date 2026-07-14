@@ -45,3 +45,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/) and this 
 - STACK.md updated: Next.js 15→16, Tailwind CSS v3→v4
 - WORKFLOW.md simplified to delegate to WORKFLOWS/
 - MEMORY.md, DEVELOPMENT_LOG.md, PROJECT_STATE.md updated
+
+---
+
+## v0.3.0 — 2026-07-14
+
+### Added
+
+- Phoenix AI Software Factory foundation (.ai/ directory)
+- 10 reusable prompt templates: build-web-app, build-ui-component, build-api, build-sql, build-google-sheet, build-apps-script, generate-documentation, review-code, refactor-code, generate-tests
+- 9 business workflow definitions: build-web-app, build-ui-component, build-dashboard, build-google-sheet, build-apps-script, build-sql, review-code, refactor-code, generate-documentation
+- 8 agent definitions: Project Manager, Solution Architect, Repository Engineer, UI Engineer, API Engineer, Test Engineer, Documentation Engineer, Release Manager
+- .ai/memory/, .ai/validators/, .ai/schemas/, .ai/examples/, .ai/templates/
+- PULL_REQUEST_TEMPLATE.md with quality checklist
+- CODEOWNERS file for repository governance
+- phoenix-request.yml issue template for AI-assisted requests

@@ -65,6 +65,29 @@
 
 ---
 
+---
+
+## Iteration 004
+
+| Field                    | Value                                                                                                                                                                                                                                               |
+| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Date                     | 2026-07-14                                                                                                                                                                                                                                          |
+| Objectives               | Create Phoenix AI Software Factory foundation: .ai/ directory structure with prompts, workflows, agents, memory, validators, schemas, examples, templates. Add PR template, CODEOWNERS, AI-assisted issue template.                                 |
+| Completed Tasks          | TASK-0015                                                                                                                                                                                                                                           |
+| Files Created            | 30+ (.ai/prompts/ — 10 templates, .ai/workflows/ — 9 workflows, .ai/agents/ — 8 agents, .ai/memory/validators/schemas/examples/templates READMEs, .github/PULL_REQUEST_TEMPLATE.md, .github/CODEOWNERS, .github/ISSUE_TEMPLATE/phoenix-request.yml) |
+| Files Updated            | .opencode/NEXT_TASK.md, 06-docs/project/TASK_REGISTER.md, 06-docs/project/MILESTONES.md, 06-docs/project/BUILD_SUMMARY.md, 06-docs/project/PROGRESS.md                                                                                              |
+| Architecture Changes     | Added .ai/ as the canonical location for AI Software Factory configuration (prompts, workflows, agents, validators, schemas)                                                                                                                        |
+| Validation Results       | TBD (no source code changed)                                                                                                                                                                                                                        |
+| Tests                    | None                                                                                                                                                                                                                                                |
+| Known Issues             | None                                                                                                                                                                                                                                                |
+| Technical Debt           | None                                                                                                                                                                                                                                                |
+| Next Recommended Task    | TASK-0016 — Prompt Engine                                                                                                                                                                                                                           |
+| Estimated Remaining Work | ~30h                                                                                                                                                                                                                                                |
+| Repository Health        | Healthy                                                                                                                                                                                                                                             |
+| Overall Progress         | ~22%                                                                                                                                                                                                                                                |
+
+---
+
 ## Repository Health
 
 | Check         | Status |

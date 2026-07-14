@@ -164,6 +164,25 @@
 
 ---
 
+## TASK-0015
+
+| Field            | Value                                                                                                                                                                                        |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Title            | Phoenix AI Software Factory — Repository Foundation                                                                                                                                          |
+| Description      | Create .ai/ directory structure with prompts, workflows, agents, memory, validators, schemas, examples, templates. Add PULL_REQUEST_TEMPLATE.md, CODEOWNERS, phoenix-request issue template. |
+| Priority         | HIGH                                                                                                                                                                                         |
+| Status           | COMPLETED                                                                                                                                                                                    |
+| Dependencies     | TASK-0014                                                                                                                                                                                    |
+| Files affected   | .ai/ (entire directory), .github/PULL_REQUEST_TEMPLATE.md, .github/CODEOWNERS, .github/ISSUE_TEMPLATE/phoenix-request.yml                                                                    |
+| Estimated effort | 2h                                                                                                                                                                                           |
+| Actual effort    | 1h                                                                                                                                                                                           |
+| Owner            | hernando                                                                                                                                                                                     |
+| Date Created     | 2026-07-14                                                                                                                                                                                   |
+| Date Completed   | 2026-07-14                                                                                                                                                                                   |
+| Notes            | Milestone 001 — Phoenix AI Software Factory Foundation. 10 prompt templates, 9 workflows, 8 agents, issue template, PR template, CODEOWNERS created.                                         |
+
+---
+
 ## TASK-0009
 
 | Field            | Value                                                                                |

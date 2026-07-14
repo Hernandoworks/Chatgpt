@@ -4,7 +4,7 @@
 Overall Progress
 ████░░░░░░░░░░░░░░░░
 
-18%
+22%
 
 Completed
 9
@@ -16,7 +16,7 @@ Blocked
 0
 
 Milestones Complete
-2 / 5
+3 / 6
 
 Repository Status
 Healthy

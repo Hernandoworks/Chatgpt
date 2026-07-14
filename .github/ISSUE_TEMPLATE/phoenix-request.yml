@@ -1,0 +1,97 @@
+name: Phoenix AI Request
+description: Request work through the Phoenix AI Software Factory
+title: "[Phoenix]: "
+labels: ["phoenix", "ai-assisted"]
+projects: []
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Submit a request to the Phoenix AI Software Factory. The platform will process your request through its multi-agent workflow and produce a draft pull request for human review.
+
+  - type: dropdown
+    id: request-type
+    attributes:
+      label: Request Type
+      description: What type of work do you need?
+      options:
+        - Web Application
+        - UI Component
+        - Dashboard
+        - API
+        - SQL / Database
+        - Google Sheet
+        - Google Apps Script
+        - Documentation
+        - Tests
+        - Refactoring
+        - Code Review
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Describe what you want to build or change. Be as specific as possible.
+      placeholder: |
+        I need a user settings page with profile editing, password change, and notification preferences.
+
+        Key requirements:
+        - Form validation with Zod
+        - Loading state during save
+        - Error handling for API failures
+        - Success confirmation toast
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance Criteria
+      description: What specific outcomes define success?
+      placeholder: |
+        - [ ] User can view and edit their profile
+        - [ ] Form validates all fields before submission
+        - [ ] Changes persist after page refresh
+        - [ ] Error messages are displayed inline
+    validations:
+      required: false
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      options:
+        - Critical
+        - High
+        - Medium
+        - Low
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Apps
+        - Packages
+        - Services
+        - Database
+        - Infra
+        - Docs
+        - Tools
+        - CI/CD
+        - Design System
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional Context
+      description: Screenshots, references, or any additional information.
+      placeholder: Add any relevant links, mockups, or related issues here.

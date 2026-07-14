@@ -1,0 +1,32 @@
+# Default owners
+* @Hernandoworks
+
+# AI Software Factory configuration
+/.ai/ @Hernandoworks
+
+# GitHub configuration
+/.github/ @Hernandoworks
+
+# Applications
+/01-apps/ @Hernandoworks
+
+# Packages
+/02-packages/ @Hernandoworks
+
+# Services
+/03-services/ @Hernandoworks
+
+# Database
+/04-database/ @Hernandoworks
+
+# Infrastructure
+/05-infra/ @Hernandoworks
+
+# Documentation
+/06-docs/ @Hernandoworks
+
+# Tools
+/09-tools/ @Hernandoworks
+
+# Security
+/15-security/ @Hernandoworks

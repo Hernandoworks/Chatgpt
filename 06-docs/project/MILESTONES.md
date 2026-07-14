@@ -22,7 +22,17 @@
 
 ---
 
-## Milestone 003 — Core UI Library
+## Milestone 003 — AI Software Factory Foundation
+
+| Field      | Value     |
+| ---------- | --------- |
+| Status     | Completed |
+| Completion | 100%      |
+| Tasks      | TASK-0015 |
+
+---
+
+## Milestone 004 — Core UI Library
 
 | Field      | Value   |
 | ---------- | ------- |
@@ -32,7 +42,7 @@
 
 ---
 
-## Milestone 004 — Application Shell
+## Milestone 005 — Application Shell
 
 | Field      | Value   |
 | ---------- | ------- |
@@ -42,7 +52,7 @@
 
 ---
 
-## Milestone 005 — Feature Implementation
+## Milestone 006 — Feature Implementation
 
 | Field      | Value   |
 | ---------- | ------- |

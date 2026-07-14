@@ -4,13 +4,17 @@
 
 Phase 1 — Foundation & Tooling
 
+## Current Phase
+
+Phase 1 — Foundation & Tooling
+
 ## Current Milestone
 
-Milestone 002 — Foundation
+Milestone 003 — AI Software Factory Foundation
 
 ## Current Task
 
-TASK-0014 — Phoenix CLI
+TASK-0015 — Phoenix AI Software Factory Repository Foundation
 
 ## Status
 
@@ -42,7 +46,7 @@ Format: PASS
 
 ## Next Action
 
-Start TASK-0009 — UI primitives (Select, Checkbox, Dialog, Tooltip, DropdownMenu, Tabs, Switch, RadioGroup)
+TASK-0016 — Prompt Engine: implement prompt template loader, context injector, payload builder
 
 ## Blockers
 
