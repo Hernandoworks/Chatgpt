@@ -11,7 +11,7 @@ import {
   promptFiles,
   agendaMappings,
 } from "./app.js";
-import { switchTab, setAgentData, setPromptData } from "./app.js"; // cross-link support
+import { switchTab } from "./app.js";
 
 import { showToast, skeleton, badge, debounce } from "./components.js";
 

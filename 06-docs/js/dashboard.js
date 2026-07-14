@@ -13,9 +13,10 @@ import {
   switchTab,
   iconFor,
   ago,
-  showToast,
-  skeleton,
 } from "./app.js";
+
+import { showToast, skeleton } from "./components.js";
+
 import { renderWorkflowManager, WF_META } from "./workflows.js";
 
 export async function loadDashboard() {

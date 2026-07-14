@@ -14,11 +14,9 @@ import {
   iconFor,
   ago,
   getToken,
-  showToast,
-  showModal,
-  closeModal,
 } from "./app.js";
-import { skeleton, badge, debounce } from "./components.js";
+
+import { showToast, showModal, closeModal, skeleton, badge, debounce } from "./components.js";
 
 export const WF_META = {
   "wf-001-repo-bootstrap.yml": {
