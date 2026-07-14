@@ -6,6 +6,19 @@
 <title>Phoenix AI Software Factory — Dashboard</title>
 <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
 <link rel="stylesheet" href="css/phoenix.css">
+<style>
+  .no-token-banner {
+    display: none; background: linear-gradient(135deg, var(--accent-dim), rgba(99,102,241,0.08));
+    border: 1px solid var(--accent); border-radius: var(--radius); padding: 20px 24px;
+    margin-bottom: 24px; text-align: center;
+  }
+  .no-token-banner h3 { color: var(--accent-hover); margin-bottom: 8px; }
+  .no-token-banner p { color: var(--text-secondary); font-size: 13px; margin-bottom: 12px; }
+  .no-token-banner code {
+    background: var(--bg-primary); padding: 2px 6px; border-radius: 4px;
+    font-size: 12px; color: var(--accent-hover);
+  }
+</style>
 </head>
 <body>
 <div class="container">
@@ -17,6 +30,11 @@
       <span class="pat-status" id="patStatus"></span>
     </div>
   </header>
+
+  <div class="no-token-banner" id="noTokenBanner">
+    <h3>&#x1F512; Enter a GitHub PAT to load dashboard data</h3>
+    <p>GitHub API requires authentication for reliable access. Create a token with <code>repo</code> scope at <a href="https://github.com/settings/tokens" target="_blank">github.com/settings/tokens</a>, then paste it above.</p>
+  </div>
 
   <div class="tabs" role="tablist">
     <button class="tab" role="tab" data-tab="dashboard" aria-selected="true" tabindex="0">Dashboard</button>
@@ -34,10 +52,10 @@
       <div class="stat-card"><div class="stat-value" id="statLOC">—</div><div class="stat-label">YAML Lines</div></div>
     </div>
     <div class="main-grid">
-      <div class="panel"><div class="panel-title">Workflows <span class="text-muted text-sm" id="wfCount"></span></div><div id="workflowList"><div class="loading" aria-label="Loading workflows">Loading</div></div></div>
-      <div class="panel"><div class="panel-title">Agent Registry <span class="text-muted text-sm" id="agentCount"></span></div><div id="agentList"><div class="loading" aria-label="Loading agents">Loading</div></div></div>
+      <div class="panel"><div class="panel-title">Workflows <span class="text-muted text-sm" id="wfCount"></span></div><div id="workflowList"><div class="empty-state">Enter a PAT above to load workflows</div></div></div>
+      <div class="panel"><div class="panel-title">Agent Registry <span class="text-muted text-sm" id="agentCount"></span></div><div id="agentList"><div class="empty-state">Enter a PAT above to load agents</div></div></div>
     </div>
-    <div class="panel"><div class="panel-title">Activity Feed</div><div id="activityFeed"><div class="loading" aria-label="Loading activity">Loading</div></div></div>
+    <div class="panel"><div class="panel-title">Activity Feed</div><div id="activityFeed"><div class="empty-state">Enter a PAT above to load activity</div></div></div>
     <div class="panel"><div class="panel-title">Quick Actions</div>
       <div class="quick-actions">
         <button class="btn btn-primary" onclick="window.quickTrigger('wf-013-quality-assurance.yml',{})">&#x1F50D; Run QA (WF-013)</button>
@@ -55,7 +73,7 @@
     <div class="panel">
       <div class="panel-title">Workflow Manager <span class="text-muted text-sm" id="wfMgrCount"></span></div>
       <input type="text" class="search-bar" id="wfSearch" placeholder="Search by name, trigger, or agent..." aria-label="Search workflows">
-      <div id="workflowManagerList"><div class="loading" aria-label="Loading workflows">Loading</div></div>
+      <div id="workflowManagerList"><div class="empty-state">Enter a PAT above to load workflows</div></div>
     </div>
     <div id="wfDetail" class="detail-view" style="display:none" aria-label="Workflow detail"></div>
   </div>
@@ -83,7 +101,6 @@
   <div class="last-updated">Last updated: <span id="lastUpdated">—</span> &middot; Auto-refreshes every 30s</div>
 </div>
 
-<!-- Modal -->
 <div class="modal-overlay" id="modalOverlay" aria-hidden="true" role="dialog" aria-modal="true">
   <div class="modal">
     <button class="close-btn" onclick="closeModal()" aria-label="Close">&times;</button>
@@ -97,31 +114,61 @@
   </div>
 </div>
 
+<script>
+window.showToast = function(msg, type) {
+  var c = document.getElementById('toastContainer');
+  if (!c) { c = document.createElement('div'); c.id = 'toastContainer'; c.style.cssText = 'position:fixed;top:16px;right:16px;z-index:2000;display:flex;flex-direction:column;gap:8px'; document.body.appendChild(c); }
+  var el = document.createElement('div');
+  el.style.cssText = 'padding:12px 20px;border-radius:8px;font-size:13px;box-shadow:0 4px 6px rgba(0,0,0,0.3);animation:slideIn 0.3s ease;max-width:360px;background:rgba(34,197,94,0.2);border:1px solid #22c55e;color:#22c55e';
+  if (type === 'error') el.style.cssText = el.style.cssText.replace(/#22c55e/g, '#ef4444').replace(/rgba\(34,197,94/g, 'rgba(239,68,68');
+  if (type === 'info') el.style.cssText = el.style.cssText.replace(/#22c55e/g, '#818cf8').replace(/rgba\(34,197,94/g, 'rgba(99,102,241');
+  el.textContent = msg;
+  el.setAttribute('role', 'alert');
+  c.appendChild(el);
+  setTimeout(function() { el.style.opacity = '0'; el.style.transition = 'opacity 0.3s'; setTimeout(function() { el.remove(); }, 300); }, 3000);
+};
+window.switchTab = function(name) {
+  document.querySelectorAll('.tab').forEach(function(t) { t.setAttribute('aria-selected', 'false'); });
+  document.querySelectorAll('.tab-page').forEach(function(p) { p.setAttribute('aria-hidden', 'true'); });
+  var tab = document.querySelector('.tab[data-tab="' + name + '"]');
+  var page = document.getElementById('page-' + name);
+  if (tab) tab.setAttribute('aria-selected', 'true');
+  if (page) page.setAttribute('aria-hidden', 'false');
+  window.location.hash = name;
+};
+window.closeModal = function() {
+  document.getElementById('modalOverlay').setAttribute('aria-hidden', 'true');
+};
+</script>
 <script type="module">
-import { init, switchTab, closeModal, showToast, setTokenStatus } from './js/app.js';
+import { init, switchTab, closeModal, showToast } from './js/app.js';
 import { loadDashboard } from './js/dashboard.js';
 import { renderWorkflowManager } from './js/workflows.js';
 import { loadPrompts } from './js/prompts.js';
 import { loadAgents } from './js/agents.js';
 
-// Expose functions globally for onclick handlers in HTML
 window.switchTab = switchTab;
 window.closeModal = closeModal;
 window.showToast = showToast;
 
-// Init
-init();
+try {
+  init();
 
-// Load data
-const prompts = await loadPrompts();
-window.__promptFiles = prompts;
+  const token = sessionStorage.getItem('phoenix_pat');
+  if (!token) {
+    document.getElementById('noTokenBanner').style.display = 'block';
+  }
 
-await loadAgents();
+  await loadPrompts().catch(function(e) { console.error('Prompts failed:', e); });
+  await loadAgents().catch(function(e) { console.error('Agents failed:', e); });
+  await loadDashboard().catch(function(e) { console.error('Dashboard failed:', e); });
 
-await loadDashboard();
+  setInterval(function() { loadDashboard().catch(function(e) { console.error('Refresh failed:', e); }); }, 30000);
 
-// Auto-refresh
-setInterval(loadDashboard, 30000);
+  console.log('Phoenix Dashboard initialized');
+} catch (e) {
+  console.error('Init failed:', e);
+}
 </script>
 </body>
 </html>
