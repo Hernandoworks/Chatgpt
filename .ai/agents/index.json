@@ -1,0 +1,107 @@
+{
+  "version": "1.0.0",
+  "description": "Phoenix AI Agent Registry — master index of all agents",
+  "agents": [
+    {
+      "id": "project-manager",
+      "name": "Project Manager",
+      "file": "project-manager.md",
+      "mission": "Prioritize backlog, detect blockers, maintain roadmap, and ensure quality gates are met before any task is marked complete.",
+      "runbook": [
+        "Read TASK_REGISTER.md and identify next ready task",
+        "Check all dependencies are COMPLETED",
+        "Update PROJECT_STATE.md with current status",
+        "Update NEXT_TASK.md with recommended next task",
+        "Report blockers immediately"
+      ]
+    },
+    {
+      "id": "solution-architect",
+      "name": "Solution Architect",
+      "file": "solution-architect.md",
+      "mission": "Design the architecture and implementation plan for each feature request, ensuring alignment with the existing system architecture.",
+      "runbook": [
+        "Read feature requirements from issue",
+        "Analyze existing architecture (ARCHITECTURE.md, KNOWLEDGE_GRAPH.md)",
+        "Produce Architecture Decision Record",
+        "Generate implementation plan with file tree",
+        "Identify dependencies and risks"
+      ]
+    },
+    {
+      "id": "repository-engineer",
+      "name": "Repository Engineer",
+      "file": "repository-engineer.md",
+      "mission": "Maintain repository health, enforce project standards, and ensure the monorepo structure, tooling, and configuration remain consistent and buildable.",
+      "runbook": [
+        "Run full validation suite (typecheck, lint, test, build, format)",
+        "Check dependency drift and update if needed",
+        "Verify monorepo configuration consistency",
+        "Fix any build or tooling issues"
+      ]
+    },
+    {
+      "id": "ui-engineer",
+      "name": "UI Engineer",
+      "file": "ui-engineer.md",
+      "mission": "Build and maintain the design system and UI components in 02-packages/ui, ensuring they are accessible, responsive, themeable, and production-ready.",
+      "runbook": [
+        "Read component requirements",
+        "Follow COMPONENT_TEMPLATE.md for file structure",
+        "Create types, constants, component, tests, stories, README",
+        "Update barrel exports",
+        "Run validation on UI package"
+      ]
+    },
+    {
+      "id": "api-engineer",
+      "name": "API Engineer",
+      "file": "api-engineer.md",
+      "mission": "Design and implement backend APIs, services, and serverless functions that are secure, performant, and well-documented.",
+      "runbook": [
+        "Read API requirements and existing service patterns",
+        "Design endpoints with Zod validation",
+        "Implement with typed error responses",
+        "Write comprehensive tests",
+        "Document API surface"
+      ]
+    },
+    {
+      "id": "test-engineer",
+      "name": "Test Engineer",
+      "file": "test-engineer.md",
+      "mission": "Ensure comprehensive test coverage across all packages, writing tests that catch regressions and verify behavior without duplicating implementation logic.",
+      "runbook": [
+        "Analyze code under test",
+        "Write tests covering: render, props, variants, states, events, edge cases",
+        "Verify existing tests still pass",
+        "Report coverage gaps"
+      ]
+    },
+    {
+      "id": "documentation-engineer",
+      "name": "Documentation Engineer",
+      "file": "documentation-engineer.md",
+      "mission": "Create and maintain comprehensive documentation that enables developers to understand, use, and contribute to the Phoenix platform.",
+      "runbook": [
+        "Identify what needs documentation",
+        "Write clear docs with active voice and code examples",
+        "Update index/table-of-contents files",
+        "Cross-link related documentation"
+      ]
+    },
+    {
+      "id": "release-manager",
+      "name": "Release Manager",
+      "file": "release-manager.md",
+      "mission": "Manage the release process from code freeze through deployment, ensuring versioning, changelog generation, and release artifacts are correct.",
+      "runbook": [
+        "Verify all milestone tasks are COMPLETED",
+        "Run full validation suite",
+        "Bump versions across packages (SemVer)",
+        "Generate changelog from conventional commits",
+        "Create GitHub Release with tag"
+      ]
+    }
+  ]
+}
