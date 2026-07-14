@@ -1,0 +1,189 @@
+name: "WF-006 — Component Generator"
+
+on:
+  workflow_dispatch:
+    inputs:
+      component_name:
+        description: Component name in PascalCase (e.g. Select)
+        required: true
+        type: string
+      component_path:
+        description: Target path (default 02-packages/ui/src/components/{Name})
+        required: false
+        type: string
+      issue_number:
+        description: Related issue number (optional)
+        required: false
+        type: string
+
+env:
+  NODE_VERSION: "20"
+
+jobs:
+  generate:
+    name: Generate UI component
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile 2>/dev/null || pnpm install
+
+      - name: Validate component name
+        id: validate
+        run: |
+          NAME="${{ github.event.inputs.component_name }}"
+          if ! echo "$NAME" | grep -qE '^[A-Z][a-zA-Z0-9]+$'; then
+            echo "Error: Component name must be PascalCase (e.g. Select, DataTable)"
+            exit 1
+          fi
+          TARGET="${{ github.event.inputs.component_path }}"
+          if [ -z "$TARGET" ]; then
+            TARGET="02-packages/ui/src/components/$NAME"
+          fi
+          echo "name=$NAME" >> $GITHUB_OUTPUT
+          echo "target=$TARGET" >> $GITHUB_OUTPUT
+          if [ -d "$TARGET" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Load prompt template
+        id: prompt
+        run: |
+          cat > /tmp/prompt.md << 'PROMPT'
+          Generate a React component named ${{ steps.validate.outputs.name }} following Phoenix design system standards.
+
+          Location: ${{ steps.validate.outputs.target }}
+
+          Requirements:
+          - Strict TypeScript with noUncheckedIndexedAccess
+          - Use cva() for variant management
+          - Use cn() for class merging (from 02-packages/ui/src/lib/cn.ts)
+          - forwardRef where component wraps a native element
+          - Dark mode via dark: Tailwind variants
+          - Loading, disabled, error states
+          - Keyboard navigation and ARIA attributes
+          - Named exports only, barrel export via index.ts
+          - Tailwind utility classes only
+
+          Generate these files:
+          1. types.ts — Props interface with variant and size types
+          2. ${{ steps.validate.outputs.name }}.tsx — Main component
+          3. index.ts — Barrel export
+          4. tests.tsx — Vitest tests covering render, variants, states, events, edge cases
+          5. README.md — Usage documentation
+
+          Also update the barrel export in 02-packages/ui/src/index.ts.
+          PROMPT
+          echo "template=$(cat /tmp/prompt.md | jq -Rs .)" >> $GITHUB_OUTPUT
+
+      - name: Call DeepSeek API
+        id: ai
+        env:
+          DEEPSEEK_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+        run: |
+          mkdir -p .ai/artifacts/components
+          if [ -n "$DEEPSEEK_KEY" ]; then
+            curl -s -X POST https://api.deepseek.com/v1/chat/completions \
+              -H "Content-Type: application/json" \
+              -H "Authorization: Bearer $DEEPSEEK_KEY" \
+              -d "{
+                \"model\": \"deepseek-chat\",
+                \"messages\": [{\"role\": \"user\", \"content\": ${{ steps.prompt.outputs.template }}}],
+                \"temperature\": 0.2,
+                \"max_tokens\": 6000
+              }" > .ai/artifacts/components/response-${{ steps.validate.outputs.name }}.json
+            echo "status=success" >> $GITHUB_OUTPUT
+          else
+            echo "status=skipped" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create component directory
+        run: |
+          mkdir -p "${{ steps.validate.outputs.target }}"
+
+      - name: Parse and write component files
+        run: |
+          node -e '
+          const fs = require("fs");
+          const path = require("path");
+          const respFile = ".ai/artifacts/components/response-${{ steps.validate.outputs.name }}.json";
+          if (!fs.existsSync(respFile)) {
+            console.log("No AI response to parse");
+            process.exit(0);
+          }
+          const resp = JSON.parse(fs.readFileSync(respFile, "utf-8"));
+          if (!resp.choices || !resp.choices[0]) {
+            console.log("No choices in AI response");
+            process.exit(0);
+          }
+          const content = resp.choices[0].message.content;
+          const targetDir = "${{ steps.validate.outputs.target }}";
+          const codeBlocks = content.match(/```(\w+)?\n([\s\S]*?)```/g) || [];
+          for (const block of codeBlocks) {
+            const clean = block.replace(/```\w*\n?/, "").replace(/\n?```$/, "");
+            const lines = clean.split("\n");
+            const fileLine = lines.find(l => l.includes(".ts") || l.includes(".tsx") || l.includes("README"));
+            if (fileLine) {
+              const fileName = fileLine.replace(/^[#\s*]*/, "").trim();
+              const fileContent = lines.slice(lines.indexOf(fileLine) + 1).join("\n").trim();
+              if (fileName && fileContent) {
+                const filePath = path.join(targetDir, fileName);
+                fs.writeFileSync(filePath, fileContent);
+                console.log("Created:", filePath);
+              }
+            }
+          }
+          '
+
+      - name: Run validation
+        continue-on-error: true
+        run: |
+          pnpm typecheck 2>&1 | tail -10 || true
+          pnpm lint 2>&1 | tail -10 || true
+          pnpm test 2>&1 | tail -10 || true
+
+      - name: Create pull request
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const branch = `feat/component-${{ steps.validate.outputs.name }}`;
+            const body = `## Component: ${{ steps.validate.outputs.name }}\n\n` +
+              `Generated by WF-006 Component Generator\n\n` +
+              `**Target:** ${{ steps.validate.outputs.target }}\n\n` +
+              `---\n*Review before merging*`;
+            try {
+              await github.rest.git.push({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: `refs/heads/${branch}`,
+                force: false
+              });
+            } catch (e) {
+              console.log("Push skipped:", e.message);
+            }
+            const pr = await github.rest.pulls.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: 'feat(ui): add ${{ steps.validate.outputs.name }} component',
+              head: branch,
+              base: 'main',
+              body: body,
+              draft: true
+            });
+            return pr.data.html_url;

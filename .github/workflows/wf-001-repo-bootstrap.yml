@@ -1,0 +1,183 @@
+name: "WF-001 — Repository Bootstrap"
+
+on:
+  workflow_dispatch:
+    inputs:
+      repo_name:
+        description: Repository name
+        required: true
+        type: string
+      description:
+        description: Repository description
+        required: false
+        type: string
+      visibility:
+        description: Repository visibility
+        required: true
+        type: choice
+        options: [public, private]
+
+env:
+  NODE_VERSION: "20"
+
+jobs:
+  bootstrap:
+    name: Create repository structure
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create directory structure
+        run: |
+          for dir in \
+            01-apps 02-packages 03-services 04-database 05-infra \
+            06-docs 07-tests 08-scripts 09-tools 10-assets \
+            11-config 12-templates 13-examples 14-monitoring \
+            15-security 16-experiments 99-archive; do
+            mkdir -p "$dir"
+            touch "$dir/.gitkeep"
+          done
+          mkdir -p .github/{workflows,ISSUE_TEMPLATE}
+
+      - name: Generate root config files
+        run: |
+          cat > package.json << 'EOF'
+          {
+            "name": "${{ github.event.inputs.repo_name }}",
+            "private": true,
+            "version": "0.1.0",
+            "engines": { "node": ">=20", "pnpm": ">=9" },
+            "packageManager": "pnpm@11.1.3",
+            "scripts": {
+              "dev": "turbo run dev",
+              "build": "turbo run build",
+              "lint": "turbo run lint",
+              "typecheck": "turbo run typecheck",
+              "test": "vitest run",
+              "clean": "turbo run clean",
+              "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+              "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\""
+            }
+          }
+          EOF
+
+          cat > pnpm-workspace.yaml << 'EOF'
+          packages:
+            - "01-apps/*"
+            - "02-packages/*"
+            - "03-services/*"
+            - "09-tools/*"
+          EOF
+
+          cat > turbo.json << 'EOF'
+          {
+            "$schema": "https://turbo.build/schema.json",
+            "globalDependencies": ["**/.env.*local", "tsconfig.base.json"],
+            "tasks": {
+              "build": { "dependsOn": ["^build"], "outputs": [".next/**", "dist/**", ".turbo/**"] },
+              "dev": { "cache": false, "persistent": true },
+              "lint": {},
+              "typecheck": { "dependsOn": ["^build"] },
+              "test": { "dependsOn": ["build"], "outputs": [] },
+              "clean": { "cache": false }
+            }
+          }
+          EOF
+
+          cat > tsconfig.base.json << 'EOF'
+          {
+            "compilerOptions": {
+              "target": "ES2022", "lib": ["ES2022", "DOM", "DOM.Iterable"],
+              "module": "ESNext", "moduleResolution": "bundler",
+              "strict": true, "noUncheckedIndexedAccess": true,
+              "noUnusedLocals": true, "noUnusedParameters": true,
+              "esModuleInterop": true, "isolatedModules": true,
+              "resolveJsonModule": true, "skipLibCheck": true,
+              "declaration": true, "sourceMap": true
+            }
+          }
+          EOF
+
+      - name: Create editorconfig
+        run: |
+          cat > .editorconfig << 'EOF'
+          root = true
+          [*]
+          indent_style = space
+          indent_size = 2
+          end_of_line = lf
+          charset = utf-8
+          trim_trailing_whitespace = true
+          insert_final_newline = true
+          [*.md]
+          trim_trailing_whitespace = false
+          EOF
+
+      - name: Create gitignore
+        run: |
+          cat > .gitignore << 'EOF'
+          node_modules/
+          .pnpm-store/
+          dist/
+          .next/
+          .turbo/
+          .env
+          .env.local
+          .env.*.local
+          coverage/
+          .DS_Store
+          *.swp
+          *.swo
+          EOF
+
+      - name: Create initial README
+        run: |
+          cat > README.md << 'EOF'
+          # ${{ github.event.inputs.repo_name }}
+
+          ${{ github.event.inputs.description }}
+          EOF
+
+      - name: Generate GitHub labels
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          for label in \
+            "phoenix:4ade87" "ai-assisted:bfdadc" \
+            "priority-critical:b60205" "priority-high:fbbc04" \
+            "priority-medium:0e8a16" "priority-low:c5def5" \
+            "area-apps:1f76c3" "area-packages:1f76c3" \
+            "area-services:1f76c3" "area-database:1f76c3" \
+            "area-infra:1f76c3" "area-docs:1f76c3" \
+            "area-tools:1f76c3" "area-ci:1f76c3" \
+            "phoenix/web-app:fbca04" "phoenix/ui-component:fbca04" \
+            "phoenix/dashboard:fbca04" "phoenix/api:fbca04" \
+            "phoenix/sql:fbca04" "phoenix/google-sheet:fbca04" \
+            "phoenix/apps-script:fbca04" "phoenix/docs:fbca04" \
+            "phoenix/tests:fbca04" "phoenix/refactor:fbca04" \
+            "phoenix/review:fbca04" "phoenix/release:fbca04" \
+            "phoenix/security:fbca04"; do
+            name="${label%%:*}"
+            color="${label##*:}"
+            gh label create "$name" --color "$color" --force 2>/dev/null || true
+          done
+
+      - name: Create initial milestone
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh api repos/${{ github.repository }}/milestones \
+            --field title="v0.1.0" \
+            --field description="Initial release" \
+            --field state=open 2>/dev/null || true
+
+      - name: Commit scaffold
+        run: |
+          git config user.name "phoenix-bot"
+          git config user.email "bot@phoenix.ai"
+          git add -A
+          git commit -m "feat(repo): initial bootstrap via WF-001" || echo "Nothing to commit"
+          git push origin main || echo "Already up to date"

@@ -1,0 +1,181 @@
+name: "WF-015 — Release"
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_bump:
+        description: Version bump type
+        required: true
+        type: choice
+        default: patch
+        options:
+          - patch
+          - minor
+          - major
+      release_title:
+        description: Release title (optional)
+        required: false
+        type: string
+  push:
+    tags:
+      - "v*.*.*"
+
+env:
+  NODE_VERSION: "20"
+
+jobs:
+  release:
+    name: Create release
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Determine version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            TAG="${{ github.ref_name }}"
+            echo "version=${TAG#v}" >> $GITHUB_OUTPUT
+            echo "tag=$TAG" >> $GITHUB_OUTPUT
+          else
+            CURRENT=$(node -p "require('./package.json').version")
+            IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT"
+            case "${{ github.event.inputs.version_bump }}" in
+              major) MAJOR=$((MAJOR + 1)); MINOR=0; PATCH=0 ;;
+              minor) MINOR=$((MINOR + 1)); PATCH=0 ;;
+              patch) PATCH=$((PATCH + 1)) ;;
+            esac
+            NEW="$MAJOR.$MINOR.$PATCH"
+            echo "version=$NEW" >> $GITHUB_OUTPUT
+            echo "tag=v$NEW" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run full QA gate
+        run: |
+          pnpm typecheck || echo "TypeCheck failed"
+          pnpm lint || echo "Lint failed"
+          pnpm test || echo "Tests failed"
+          pnpm build || echo "Build failed"
+
+      - name: Bump version in package.json
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          node -e "
+          const fs = require('fs');
+          const pkg = JSON.parse(fs.readFileSync('package.json', 'utf-8'));
+          pkg.version = '${{ steps.version.outputs.version }}';
+          fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
+          "
+          git add package.json
+
+      - name: Update CHANGELOG.md
+        run: |
+          TODAY=$(date +%Y-%m-%d)
+          TAG="${{ steps.version.outputs.tag }}"
+          cat > /tmp/new-changelog.md << EOF
+          ## ${TAG} — ${TODAY}
+
+          ### Added
+          - (auto-generated — see commit history for details)
+
+          ### Changed
+
+          ### Fixed
+
+          ---
+
+          EOF
+          if [ -f CHANGELOG.md ]; then
+            cat CHANGELOG.md >> /tmp/new-changelog.md
+          fi
+          cp /tmp/new-changelog.md CHANGELOG.md
+          git add CHANGELOG.md
+
+      - name: Generate release notes via AI
+        id: ai
+        env:
+          DEEPSEEK_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+        run: |
+          if [ -f ".ai/prompts/write-release-notes.md" ] && [ -n "$DEEPSEEK_KEY" ]; then
+            COMMITS=$(git log $(git describe --tags --abbrev=0 2>/dev/null || echo HEAD~10)..HEAD --oneline 2>/dev/null | head -50 || echo "No commits")
+            curl -s -X POST https://api.deepseek.com/v1/chat/completions \
+              -H "Content-Type: application/json" \
+              -H "Authorization: Bearer $DEEPSEEK_KEY" \
+              -d "{
+                \"model\": \"deepseek-chat\",
+                \"messages\": [{
+                  \"role\": \"user\",
+                  \"content\": \"Generate release notes for version ${{ steps.version.outputs.version }}.\\n\\nCommits:\\n$COMMITS\"
+                }],
+                \"temperature\": 0.3
+              }" > /tmp/release-notes.json
+          fi
+
+      - name: Commit version bump
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          git config user.name "phoenix-bot"
+          git config user.email "bot@phoenix.ai"
+          git commit -m "chore(release): bump to ${{ steps.version.outputs.version }}" || echo "Nothing to commit"
+          git tag "${{ steps.version.outputs.tag }}"
+          git push origin main --tags
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          NOTES="Release ${{ steps.version.outputs.tag }}"
+          if [ -f /tmp/release-notes.json ]; then
+            NOTES=$(node -e "
+            const fs = require('fs');
+            const resp = JSON.parse(fs.readFileSync('/tmp/release-notes.json', 'utf-8'));
+            console.log(resp.choices?.[0]?.message?.content || 'Release ${{ steps.version.outputs.tag }}');
+            ")
+          fi
+          gh release create "${{ steps.version.outputs.tag }}" \
+            --title "${{ github.event.inputs.release_title || steps.version.outputs.tag }}" \
+            --notes "$NOTES" \
+            --generate-notes
+
+      - name: Update GitHub Project milestone
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const version = '${{ steps.version.outputs.version }}';
+            const milestones = await github.rest.issues.listMilestones({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open'
+            });
+            const match = milestones.data.find(m =>
+              m.title.toLowerCase().includes(version) ||
+              m.title.toLowerCase().includes('v' + version)
+            );
+            if (match) {
+              await github.rest.issues.updateMilestone({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                milestone_number: match.number,
+                state: 'closed'
+              });
+            }

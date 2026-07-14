@@ -1,0 +1,96 @@
+name: "WF-007 — Workbook Generator"
+
+on:
+  workflow_dispatch:
+    inputs:
+      workbook_type:
+        description: Type of workbook to generate
+        required: true
+        type: choice
+        options:
+          - google-sheet
+          - apps-script
+      description:
+        description: Workbook requirements
+        required: true
+        type: string
+      issue_number:
+        description: Related issue number (optional)
+        required: false
+        type: string
+
+env:
+  NODE_VERSION: "20"
+
+jobs:
+  generate:
+    name: Generate workbook
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: prompt
+        run: |
+          TYPE="${{ github.event.inputs.workbook_type }}"
+          if [ "$TYPE" = "google-sheet" ]; then
+            echo "prompt_id=build-google-sheet" >> $GITHUB_OUTPUT
+            echo "target_dir=06-docs/sheets" >> $GITHUB_OUTPUT
+          else
+            echo "prompt_id=build-apps-script" >> $GITHUB_OUTPUT
+            echo "target_dir=03-services/apps-script" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Load prompt template
+        id: template
+        run: |
+          PROMPT_FILE=".ai/prompts/${{ steps.prompt.outputs.prompt_id }}.md"
+          if [ -f "$PROMPT_FILE" ]; then
+            echo "content<<EOF" >> $GITHUB_OUTPUT
+            cat "$PROMPT_FILE" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Build AI payload
+        id: build-payload
+        run: |
+          cat > /tmp/payload.json << PAYLOAD
+          {
+            "model": "deepseek-chat",
+            "messages": [{
+              "role": "user",
+              "content": "${{ steps.template.outputs.content }}\\n\\n## Requirements\\n${{ github.event.inputs.description }}"
+            }],
+            "temperature": 0.3,
+            "max_tokens": 4000
+          }
+          PAYLOAD
+          echo "payload=$(cat /tmp/payload.json | jq -c .)" >> $GITHUB_OUTPUT
+
+      - name: Call DeepSeek API
+        id: ai
+        env:
+          DEEPSEEK_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+        run: |
+          mkdir -p "${{ steps.prompt.outputs.target_dir }}"
+          if [ -n "$DEEPSEEK_KEY" ]; then
+            curl -s -X POST https://api.deepseek.com/v1/chat/completions \
+              -H "Content-Type: application/json" \
+              -H "Authorization: Bearer $DEEPSEEK_KEY" \
+              -d '${{ steps.build-payload.outputs.payload }}' \
+              > /tmp/ai-response.json
+            node -e '
+            const fs = require("fs");
+            const resp = JSON.parse(fs.readFileSync("/tmp/ai-response.json", "utf-8"));
+            const content = resp.choices?.[0]?.message?.content || "No response";
+            const outDir = "${{ steps.prompt.outputs.target_dir }}";
+            const slug = "${{ github.event.inputs.description }}".toLowerCase().replace(/[^a-z0-9]+/g, "-").substring(0, 30);
+            fs.writeFileSync(`${outDir}/${slug}.md`, content);
+            console.log("Saved to", `${outDir}/${slug}.md`);
+            '
+          fi
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: workbook-${{ github.event.inputs.workbook_type }}
+          path: ${{ steps.prompt.outputs.target_dir }}/

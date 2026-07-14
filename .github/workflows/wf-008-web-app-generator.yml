@@ -1,0 +1,195 @@
+name: "WF-008 — Web Application Generator"
+
+on:
+  workflow_dispatch:
+    inputs:
+      app_name:
+        description: Application name (kebab-case, e.g. admin-dashboard)
+        required: true
+        type: string
+      app_path:
+        description: Target path under 01-apps/
+        required: false
+        type: string
+      description:
+        description: Application requirements
+        required: true
+        type: string
+
+env:
+  NODE_VERSION: "20"
+
+jobs:
+  scaffold:
+    name: Scaffold web application
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile 2>/dev/null || pnpm install
+
+      - name: Validate and prepare paths
+        id: paths
+        run: |
+          NAME="${{ github.event.inputs.app_name }}"
+          TARGET="${{ github.event.inputs.app_path }}"
+          if [ -z "$TARGET" ]; then
+            TARGET="01-apps/$NAME"
+          fi
+          echo "name=$NAME" >> $GITHUB_OUTPUT
+          echo "target=$TARGET" >> $GITHUB_OUTPUT
+          mkdir -p "$TARGET/src/app"
+
+      - name: Generate package.json
+        run: |
+          cat > "${{ steps.paths.outputs.target }}/package.json" << EOF
+          {
+            "name": "${{ steps.paths.outputs.name }}",
+            "version": "0.1.0",
+            "private": true,
+            "scripts": {
+              "dev": "next dev",
+              "build": "next build",
+              "lint": "eslint 'src/**/*.{ts,tsx}'",
+              "typecheck": "tsc --noEmit"
+            },
+            "dependencies": {
+              "next": "^16.0.0",
+              "react": "^19.0.0",
+              "react-dom": "^19.0.0",
+              "ui": "workspace:*"
+            },
+            "devDependencies": {
+              "@types/node": "^22.0.0",
+              "@types/react": "^19.0.0",
+              "@types/react-dom": "^19.0.0",
+              "typescript": "^5.8.0"
+            }
+          }
+          EOF
+
+      - name: Generate TypeScript config
+        run: |
+          cat > "${{ steps.paths.outputs.target }}/tsconfig.json" << EOF
+          {
+            "extends": "../../tsconfig.base.json",
+            "compilerOptions": {
+              "jsx": "preserve",
+              "module": "ESNext",
+              "moduleResolution": "bundler",
+              "allowJs": true,
+              "noEmit": true,
+              "paths": { "@/*": ["./src/*"] }
+            },
+            "include": ["next-env.d.ts", "src/**/*.ts", "src/**/*.tsx"]
+          }
+          EOF
+
+      - name: Generate Next.js config
+        run: |
+          cat > "${{ steps.paths.outputs.target }}/next.config.ts" << EOF
+          import type { NextConfig } from "next";
+          const nextConfig: NextConfig = {
+            transpilePackages: ["ui"],
+          };
+          export default nextConfig;
+          EOF
+
+      - name: Generate PostCSS config
+        run: |
+          cat > "${{ steps.paths.outputs.target }}/postcss.config.mjs" << EOF
+          import { defineConfig } from "@tailwindcss/postcss";
+          export default defineConfig({ plugins: { "@tailwindcss/postcss": {} } });
+          EOF
+
+      - name: Generate layout and page
+        run: |
+          cat > "${{ steps.paths.outputs.target }}/src/app/layout.tsx" << EOF
+          import type { Metadata } from "next";
+          import "./globals.css";
+          export const metadata: Metadata = { title: "${{ steps.paths.outputs.name }}", description: "Phoenix application" };
+          export default function RootLayout({ children }: { children: React.ReactNode }) {
+            return (<html lang="en"><body>{children}</body></html>);
+          }
+          EOF
+
+          cat > "${{ steps.paths.outputs.target }}/src/app/page.tsx" << EOF
+          export default function Home() {
+            return (<main><h1>${{ steps.paths.outputs.name }}</h1><p>Scaffolded by WF-008</p></main>);
+          }
+          EOF
+
+          cat > "${{ steps.paths.outputs.target }}/src/app/globals.css" << EOF
+          @import "tailwindcss";
+          EOF
+
+      - name: Load AI prompt for additional features
+        id: prompt
+        run: |
+          if [ -f ".ai/prompts/build-web-app.md" ]; then
+            echo "template<<EOF" >> $GITHUB_OUTPUT
+            cat ".ai/prompts/build-web-app.md" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Call DeepSeek for feature scaffolding
+        env:
+          DEEPSEEK_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+        run: |
+          if [ -n "$DEEPSEEK_KEY" ] && [ -n "${{ steps.prompt.outputs.template }}" ]; then
+            curl -s -X POST https://api.deepseek.com/v1/chat/completions \
+              -H "Content-Type: application/json" \
+              -H "Authorization: Bearer $DEEPSEEK_KEY" \
+              -d "{
+                \"model\": \"deepseek-chat\",
+                \"messages\": [{
+                  \"role\": \"user\",
+                  \"content\": \"${{ steps.prompt.outputs.template }}\\n\\nApp: ${{ steps.paths.outputs.name }}\\nPath: ${{ steps.paths.outputs.target }}\\nRequirements: ${{ github.event.inputs.description }}\"
+                }],
+                \"temperature\": 0.2
+              }" > .ai/artifacts/web-app-${{ steps.paths.outputs.name }}.json
+          fi
+
+      - name: Create pull request
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const branch = 'feat/app-${{ steps.paths.outputs.name }}';
+            const body = '## Web Application: ${{ steps.paths.outputs.name }}\n\n' +
+              'Scaffolded by WF-008 Web Application Generator\n\n' +
+              '**Target:** `${{ steps.paths.outputs.target }}`\n\n' +
+              '### Generated Files\n' +
+              '- `package.json` — Next.js 16 with workspace dependency\n' +
+              '- `tsconfig.json` — Strict TypeScript\n' +
+              '- `next.config.ts` — With `ui` package transpilation\n' +
+              '- `postcss.config.mjs` — Tailwind CSS v4\n' +
+              '- `src/app/layout.tsx` — Root layout\n' +
+              '- `src/app/page.tsx` — Home page\n' +
+              '- `src/app/globals.css` — Tailwind import\n\n' +
+              '---\n*Review before merging*';
+            try {
+              await github.rest.git.push({
+                owner: context.repo.owner, repo: context.repo.repo,
+                ref: `refs/heads/${branch}`, force: false
+              });
+            } catch (e) { console.log('Push skipped:', e.message); }
+            const pr = await github.rest.pulls.create({
+              owner: context.repo.owner, repo: context.repo.repo,
+              title: 'feat(app): scaffold ${{ steps.paths.outputs.name }}',
+              head: branch, base: 'main', body: body, draft: true
+            });
+            return pr.data.html_url;

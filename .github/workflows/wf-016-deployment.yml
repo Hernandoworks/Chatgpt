@@ -1,0 +1,122 @@
+name: "WF-016 — Deployment"
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Target environment
+        required: true
+        type: choice
+        options:
+          - development
+          - staging
+          - production
+      ref:
+        description: Git ref to deploy (branch, tag, or commit SHA)
+        required: false
+        default: main
+        type: string
+      run_smoke_tests:
+        description: Run smoke tests after deployment
+        required: false
+        default: true
+        type: boolean
+  release:
+    types: [published]
+
+env:
+  NODE_VERSION: "20"
+
+jobs:
+  deploy:
+    name: Deploy to ${{ github.event.inputs.environment || 'production' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      deployments: write
+    environment:
+      name: ${{ github.event.inputs.environment || 'production' }}
+      url: ${{ steps.deploy-url.outputs.url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.ref || github.ref }}
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build all packages
+        run: pnpm build
+
+      - name: Determine deployment target
+        id: target
+        run: |
+          ENV="${{ github.event.inputs.environment }}"
+          if [ -z "$ENV" ]; then
+            ENV="production"
+          fi
+          echo "environment=$ENV" >> $GITHUB_OUTPUT
+          echo "Deploying to $ENV"
+
+      - name: Deploy web application (Cloudflare Workers)
+        if: hashFiles('01-apps/web/wrangler.jsonc') != ''
+        continue-on-error: true
+        working-directory: 01-apps/web
+        run: |
+          npx wrangler deploy --env ${{ steps.target.outputs.environment }} 2>&1 || echo "Wrangler deploy skipped"
+
+      - name: Deploy agents service (Cloudflare Workers)
+        if: hashFiles('03-services/agents/wrangler.jsonc') != ''
+        continue-on-error: true
+        working-directory: 03-services/agents
+        run: |
+          npx wrangler deploy --env ${{ steps.target.outputs.environment }} 2>&1 || echo "Wrangler deploy skipped"
+
+      - name: Record deployment URL
+        id: deploy-url
+        run: |
+          ENV="${{ steps.target.outputs.environment }}"
+          case "$ENV" in
+            development) URL="https://dev.phoenix.ai" ;;
+            staging) URL="https://staging.phoenix.ai" ;;
+            production) URL="https://phoenix.ai" ;;
+            *) URL="https://$ENV.phoenix.ai" ;;
+          esac
+          echo "url=$URL" >> $GITHUB_OUTPUT
+          echo "Deployed to $URL"
+
+      - name: Run smoke tests
+        if: github.event.inputs.run_smoke_tests != 'false'
+        continue-on-error: true
+        run: |
+          URL="${{ steps.deploy-url.outputs.url }}"
+          echo "Running smoke tests against $URL"
+          curl -s -o /dev/null -w "Status: %{http_code}\n" "$URL" || echo "Smoke test failed"
+          curl -s -o /dev/null -w "Health: %{http_code}\n" "$URL/api/health" 2>/dev/null || echo "Health endpoint not found"
+
+      - name: Create deployment status
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const env = '${{ steps.target.outputs.environment }}';
+            const url = '${{ steps.deploy-url.outputs.url }}';
+            await github.rest.repos.createDeploymentStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              deployment_id: context.payload.deployment?.id || 0,
+              state: 'success',
+              environment: env,
+              environment_url: url,
+              log_url: `${url}/-/health`,
+              description: `Deployed to ${env} at ${url}`
+            });

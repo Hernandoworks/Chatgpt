@@ -1,0 +1,135 @@
+name: "WF-003 — Task Orchestration"
+
+on:
+  issues:
+    types: [labeled, unlabeled, assigned]
+
+env:
+  NODE_VERSION: "20"
+
+jobs:
+  orchestrate:
+    if: contains(github.event.issue.labels.*.name, 'phoenix')
+    name: Assign and track task
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      issues: write
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Detect request type from labels
+        id: classify
+        run: |
+          LABELS='${{ toJSON(github.event.issue.labels.*.name) }}'
+          echo "labels=$LABELS"
+          if echo "$LABELS" | grep -q "phoenix/ui-component"; then
+            echo "type=ui-component" >> $GITHUB_OUTPUT
+            echo "agent=ui-engineer" >> $GITHUB_OUTPUT
+            echo "prompt=build-ui-component" >> $GITHUB_OUTPUT
+          elif echo "$LABELS" | grep -q "phoenix/web-app"; then
+            echo "type=web-app" >> $GITHUB_OUTPUT
+            echo "agent=solution-architect" >> $GITHUB_OUTPUT
+            echo "prompt=build-web-app" >> $GITHUB_OUTPUT
+          elif echo "$LABELS" | grep -q "phoenix/api"; then
+            echo "type=api" >> $GITHUB_OUTPUT
+            echo "agent=api-engineer" >> $GITHUB_OUTPUT
+            echo "prompt=build-api" >> $GITHUB_OUTPUT
+          elif echo "$LABELS" | grep -q "phoenix/sql"; then
+            echo "type=sql" >> $GITHUB_OUTPUT
+            echo "agent=database-engineer" >> $GITHUB_OUTPUT
+            echo "prompt=build-sql" >> $GITHUB_OUTPUT
+          elif echo "$LABELS" | grep -q "phoenix/review"; then
+            echo "type=review" >> $GITHUB_OUTPUT
+            echo "agent=quality-engineer" >> $GITHUB_OUTPUT
+            echo "prompt=review-code" >> $GITHUB_OUTPUT
+          elif echo "$LABELS" | grep -q "phoenix/refactor"; then
+            echo "type=refactor" >> $GITHUB_OUTPUT
+            echo "agent=quality-engineer" >> $GITHUB_OUTPUT
+            echo "prompt=refactor-code" >> $GITHUB_OUTPUT
+          elif echo "$LABELS" | grep -q "phoenix/docs"; then
+            echo "type=docs" >> $GITHUB_OUTPUT
+            echo "agent=documentation-engineer" >> $GITHUB_OUTPUT
+            echo "prompt=generate-documentation" >> $GITHUB_OUTPUT
+          elif echo "$LABELS" | grep -q "phoenix/release"; then
+            echo "type=release" >> $GITHUB_OUTPUT
+            echo "agent=release-manager" >> $GITHUB_OUTPUT
+            echo "prompt=write-release-notes" >> $GITHUB_OUTPUT
+          else
+            echo "type=other" >> $GITHUB_OUTPUT
+            echo "agent=agent-orchestrator" >> $GITHUB_OUTPUT
+            echo "prompt=triage-request" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create feature branch
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ISSUE_NUM=${{ github.event.issue.number }}
+          SLUG="${{ steps.classify.outputs.type }}"
+          BRANCH="feat/${ISSUE_NUM}-${SLUG}"
+          git fetch origin main 2>/dev/null || true
+          git checkout -b "$BRANCH" origin/main 2>/dev/null || git checkout -b "$BRANCH" main 2>/dev/null || true
+          git push origin "$BRANCH" 2>/dev/null || echo "Branch $BRANCH already exists"
+
+      - name: Add task assignment comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const type = '${{ steps.classify.outputs.type }}';
+            const agent = '${{ steps.classify.outputs.agent }}';
+            const branch = 'feat/${{ github.event.issue.number }}-' + type;
+            const msg = `## Task Assigned\n\n` +
+              `**Type:** ${type}\n` +
+              `**Agent:** @${agent}\n` +
+              `**Branch:** \`${branch}\`\n\n` +
+              `Trigger the implementation workflow:\n` +
+              `\`\`\`\n` +
+              `Actions → WF-005 AI Implementation → Run workflow\n` +
+              `  prompt_id: ${type}\n` +
+              `  issue_number: ${{ github.event.issue.number }}\n` +
+              `\`\`\`\n\n` +
+              `---\n*Assigned by WF-003 Task Orchestration*`;
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: msg
+            });
+
+      - name: Update GitHub Project
+        uses: actions/github-script@v7
+        with:
+          script: |
+            try {
+              const projects = await github.rest.projects.listForRepo({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                state: 'open'
+              });
+              if (projects.data.length > 0) {
+                const projectId = projects.data[0].id;
+                const columns = await github.rest.projects.listColumns({
+                  project_id: projectId
+                });
+                const inProgress = columns.data.find(c =>
+                  c.name.toLowerCase().includes('in progress'));
+                if (inProgress && context.payload.issue) {
+                  const cards = await github.rest.projects.listCards({
+                    column_id: inProgress.id
+                  });
+                  const existing = cards.data.find(c =>
+                    c.content_url === context.payload.issue.html_url);
+                  if (!existing) {
+                    await github.rest.projects.createCard({
+                      column_id: inProgress.id,
+                      content_id: context.payload.issue.id,
+                      content_type: 'Issue'
+                    });
+                  }
+                }
+              }
+            } catch (e) {
+              console.log('Project update skipped:', e.message);
+            }

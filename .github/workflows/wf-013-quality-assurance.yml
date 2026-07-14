@@ -1,0 +1,156 @@
+name: "WF-013 — Quality Assurance"
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+  push:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+  NODE_VERSION: "20"
+
+jobs:
+  quality:
+    name: Run quality checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: TypeScript type check
+        id: typecheck
+        continue-on-error: true
+        run: |
+          if pnpm typecheck 2>&1 | tee /tmp/typecheck.log; then
+            echo "PASS" > /tmp/typecheck.status
+          else
+            echo "FAIL" > /tmp/typecheck.status
+          fi
+
+      - name: ESLint
+        id: lint
+        continue-on-error: true
+        run: |
+          if pnpm lint 2>&1 | tee /tmp/lint.log; then
+            echo "PASS" > /tmp/lint.status
+          else
+            echo "FAIL" > /tmp/lint.status
+          fi
+
+      - name: Tests
+        id: test
+        continue-on-error: true
+        run: |
+          if pnpm test 2>&1 | tee /tmp/test.log; then
+            echo "PASS" > /tmp/test.status
+          else
+            echo "FAIL" > /tmp/test.status
+          fi
+
+      - name: Format check
+        id: format
+        continue-on-error: true
+        run: |
+          if pnpm format:check 2>&1 | tee /tmp/format.log; then
+            echo "PASS" > /tmp/format.status
+          else
+            echo "FAIL" > /tmp/format.status
+          fi
+
+      - name: Build
+        id: build
+        continue-on-error: true
+        run: |
+          if pnpm build 2>&1 | tee /tmp/build.log; then
+            echo "PASS" > /tmp/build.status
+          else
+            echo "FAIL" > /tmp/build.status
+          fi
+
+      - name: Dependency audit
+        id: audit
+        continue-on-error: true
+        run: |
+          if pnpm audit --audit-level=high 2>&1 | tee /tmp/audit.log; then
+            echo "PASS" > /tmp/audit.status
+          else
+            echo "FAIL" > /tmp/audit.status
+          fi
+
+      - name: Generate summary
+        id: summary
+        run: |
+          SUMMARY="# QA Results\n\n"
+          for check in typecheck lint test format build audit; do
+            STATUS=$(cat /tmp/$check.status 2>/dev/null || echo "SKIP")
+            ICON="✅"
+            [ "$STATUS" = "FAIL" ] && ICON="❌"
+            [ "$STATUS" = "SKIP" ] && ICON="⏭️"
+            SUMMARY="$SUMMARY- $ICON **$check**: $STATUS\n"
+          done
+          SUMMARY="$SUMMARY\n---\n*Checked by WF-013 Quality Assurance*"
+          echo -e "$SUMMARY" > /tmp/qa-summary.md
+          cat /tmp/qa-summary.md
+
+      - name: Post QA status to PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const summary = fs.readFileSync('/tmp/qa-summary.md', 'utf-8');
+            const failures = (summary.match(/❌/g) || []).length;
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: summary
+            });
+            const state = failures === 0 ? 'success' : 'failure';
+            await github.rest.checks.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              name: 'QA Gate',
+              head_sha: context.sha,
+              status: 'completed',
+              conclusion: state,
+              output: {
+                title: failures === 0 ? 'All QA checks passed' : `${failures} QA check(s) failed`,
+                summary: summary.substring(0, 60000)
+              }
+            });
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: qa-results
+          path: |
+            /tmp/typecheck.log
+            /tmp/lint.log
+            /tmp/test.log
+            /tmp/format.log
+            /tmp/build.log
+            /tmp/audit.log
+            /tmp/qa-summary.md

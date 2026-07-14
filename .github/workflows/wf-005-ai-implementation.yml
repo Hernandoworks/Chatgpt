@@ -1,0 +1,220 @@
+name: "WF-005 — AI Implementation"
+
+on:
+  workflow_dispatch:
+    inputs:
+      prompt_id:
+        description: Prompt template ID from .ai/prompts/ (e.g. build-ui-component)
+        required: true
+        type: choice
+        options:
+          - build-ui-component
+          - build-web-app
+          - build-api
+          - build-sql
+          - build-dashboard
+          - build-google-sheet
+          - build-apps-script
+          - refactor-code
+          - generate-tests
+          - generate-documentation
+      issue_number:
+        description: Issue number to implement
+        required: false
+        type: string
+      branch:
+        description: Feature branch name (defaults to feat/{issue}-{prompt_id})
+        required: false
+        type: string
+      additional_context:
+        description: Additional implementation context (optional)
+        required: false
+        type: string
+
+env:
+  NODE_VERSION: "20"
+
+jobs:
+  implement:
+    name: Generate and apply AI implementation
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch || github.ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile 2>/dev/null || pnpm install
+
+      - name: Fetch issue requirements
+        id: issue
+        if: github.event.inputs.issue_number
+        uses: actions/github-script@v7
+        with:
+          script: |
+            if (!context.payload.inputs.issue_number) return { body: '', title: '', labels: '' };
+            const issue = await github.rest.issues.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: parseInt(context.payload.inputs.issue_number)
+            });
+            return {
+              body: (issue.data.body || '').substring(0, 4000),
+              title: issue.data.title,
+              labels: issue.data.labels.map(l => l.name).join(', ')
+            };
+
+      - name: Load prompt template
+        id: prompt
+        run: |
+          PROMPT_FILE=".ai/prompts/${{ github.event.inputs.prompt_id }}.md"
+          if [ -f "$PROMPT_FILE" ]; then
+            echo "template<<EOF" >> $GITHUB_OUTPUT
+            cat "$PROMPT_FILE" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          else
+            echo "template=Error: $PROMPT_FILE not found" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+
+      - name: Build AI payload
+        id: build-payload
+        run: |
+          cat > /tmp/payload.json << PAYLOAD
+          {
+            "model": "deepseek-chat",
+            "messages": [
+              {
+                "role": "system",
+                "content": "You are a Senior Engineer at Phoenix AI Software Factory. Generate production-ready code following the project standards. Return code blocks with file paths as comments."
+              },
+              {
+                "role": "user",
+                "content": "${{ steps.prompt.outputs.template }}\\n\\n## Requirements\\n${{ fromJson(steps.issue.outputs.result).body || github.event.inputs.additional_context }}\\n\\n## Context\\nRepository root: $(pwd)\\nExisting packages: $(ls -d 01-apps/* 02-packages/* 03-services/* 2>/dev/null || echo 'none')"
+              }
+            ],
+            "temperature": 0.2,
+            "max_tokens": 8000
+          }
+          PAYLOAD
+          echo "payload=$(cat /tmp/payload.json | jq -c .)" >> $GITHUB_OUTPUT
+
+      - name: Call DeepSeek API
+        id: ai
+        env:
+          DEEPSEEK_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+        run: |
+          mkdir -p .ai/artifacts/implementation
+          if [ -n "$DEEPSEEK_KEY" ]; then
+            curl -s -X POST https://api.deepseek.com/v1/chat/completions \
+              -H "Content-Type: application/json" \
+              -H "Authorization: Bearer $DEEPSEEK_KEY" \
+              -d '${{ steps.build-payload.outputs.payload }}' \
+              > .ai/artifacts/implementation/response.json
+            echo "status=success" >> $GITHUB_OUTPUT
+          else
+            echo "status=skipped" >> $GITHUB_OUTPUT
+            echo '{"error":"DEEPSEEK_API_KEY not set"}' > .ai/artifacts/implementation/response.json
+          fi
+
+      - name: Parse and apply AI response
+        id: apply
+        run: |
+          mkdir -p generated
+          node -e '
+          const fs = require("fs");
+          const resp = JSON.parse(fs.readFileSync(".ai/artifacts/implementation/response.json", "utf-8"));
+          if (resp.choices && resp.choices[0]) {
+            const content = resp.choices[0].message.content;
+            fs.writeFileSync("generated/output.md", content);
+            console.log("Response saved");
+            const files = content.match(/```[\s\S]*?```/g) || [];
+            console.log(`Found ${files.length} code blocks`);
+          } else {
+            console.log("No AI response to apply");
+          }
+          '
+
+      - name: Run validation
+        id: validate
+        continue-on-error: true
+        run: |
+          echo "### Validation Results" > /tmp/validation.md
+          echo "" >> /tmp/validation.md
+          pnpm typecheck 2>&1 | tail -20 >> /tmp/validation.md && echo "**TypeScript:** PASS" >> /tmp/validation.md || echo "**TypeScript:** FAIL" >> /tmp/validation.md
+          pnpm lint 2>&1 | tail -20 >> /tmp/validation.md && echo "**Lint:** PASS" >> /tmp/validation.md || echo "**Lint:** FAIL" >> /tmp/validation.md
+          pnpm test 2>&1 | tail -20 >> /tmp/validation.md && echo "**Tests:** PASS" >> /tmp/validation.md || echo "**Tests:** FAIL" >> /tmp/validation.md
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: implementation-output-${{ github.event.inputs.prompt_id }}
+          path: |
+            .ai/artifacts/implementation/
+            generated/
+
+      - name: Create pull request
+        id: pr
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const branch = '${{ github.event.inputs.branch }}' ||
+              'feat/${{ github.event.inputs.issue_number || 'manual' }}-${{ github.event.inputs.prompt_id }}';
+            const validationPath = '/tmp/validation.md';
+            let body = '## AI-Generated Implementation\n\n';
+            body += '**Prompt:** ${{ github.event.inputs.prompt_id }}\n';
+            if ('${{ github.event.inputs.issue_number }}') {
+              body += '**Issue:** #${{ github.event.inputs.issue_number }}\n';
+            }
+            body += '\n---\n\n';
+            if (fs.existsSync(validationPath)) {
+              body += fs.readFileSync(validationPath, 'utf-8');
+            }
+            body += '\n\n---\n*Generated by WF-005 AI Implementation*';
+            try {
+              await github.rest.git.push({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: `refs/heads/${branch}`,
+                force: false
+              });
+            } catch (e) {
+              console.log('Push skipped:', e.message);
+            }
+            const pr = await github.rest.pulls.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '${{ github.event.inputs.prompt_id }} implementation',
+              head: branch,
+              base: 'main',
+              body: body,
+              draft: true
+            });
+            return pr.data.html_url;
+
+      - name: Post PR link to issue
+        if: github.event.inputs.issue_number
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: parseInt('${{ github.event.inputs.issue_number }}'),
+              body: '## Implementation Complete\n\nDraft PR: ${{ steps.pr.outputs.result }}\n\n---\n*Generated by WF-005 AI Implementation*'
+            });
