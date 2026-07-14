@@ -4,257 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Phoenix AI Software Factory — Dashboard</title>
-<style>
-  :root {
-    --bg-primary: #0f172a; --bg-secondary: #1e293b; --bg-card: #1e293b;
-    --bg-hover: #334155; --text-primary: #f8fafc; --text-secondary: #94a3b8;
-    --text-muted: #64748b; --accent: #6366f1; --accent-hover: #818cf8;
-    --accent-dim: rgba(99,102,241,0.15); --success: #22c55e; --warning: #eab308;
-    --error: #ef4444; --border: #334155; --radius: 8px;
-    --shadow: 0 4px 6px -1px rgba(0,0,0,0.3);
-  }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: var(--bg-primary); color: var(--text-primary); line-height: 1.6;
-    min-height: 100vh;
-  }
-  .container { max-width: 1360px; margin: 0 auto; padding: 24px; }
-  header {
-    display: flex; justify-content: space-between; align-items: center;
-    flex-wrap: wrap; gap: 16px; margin-bottom: 24px;
-  }
-  .logo { font-size: 24px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
-  .logo-icon { width: 32px; height: 32px; background: var(--accent); border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; font-size: 18px; }
-  .status-badge {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 4px 12px; border-radius: 999px; font-size: 13px;
-    background: var(--accent-dim); color: var(--accent-hover);
-  }
-  .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); display: inline-block; }
-  header .right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-  .pat-input {
-    background: var(--bg-secondary); border: 1px solid var(--border);
-    color: var(--text-primary); padding: 8px 12px; border-radius: var(--radius);
-    font-size: 13px; width: 220px; outline: none;
-  }
-  .pat-input:focus { border-color: var(--accent); }
-  .pat-status { font-size: 12px; color: var(--text-muted); }
-
-  /* Tabs */
-  .tabs {
-    display: flex; gap: 4px; margin-bottom: 24px;
-    border-bottom: 1px solid var(--border); padding-bottom: 0;
-  }
-  .tab {
-    padding: 10px 20px; border: 1px solid transparent; border-bottom: none;
-    border-radius: 8px 8px 0 0; cursor: pointer; font-size: 14px; font-weight: 500;
-    color: var(--text-muted); background: transparent; transition: all 0.15s;
-    position: relative; bottom: -1px;
-  }
-  .tab:hover { color: var(--text-primary); background: var(--bg-hover); }
-  .tab.active {
-    color: var(--accent-hover); background: var(--bg-secondary);
-    border-color: var(--border); border-bottom-color: var(--bg-secondary);
-  }
-  .tab-page { display: none; }
-  .tab-page.active { display: block; }
-
-  /* Stats */
-  .stats-row {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 16px; margin-bottom: 24px;
-  }
-  .stat-card {
-    background: var(--bg-card); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 20px; text-align: center;
-    box-shadow: var(--shadow); cursor: default;
-  }
-  .stat-card.clickable { cursor: pointer; }
-  .stat-card.clickable:hover { border-color: var(--accent); }
-  .stat-value { font-size: 32px; font-weight: 700; color: var(--accent-hover); }
-  .stat-label { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
-
-  /* Panels */
-  .panel {
-    background: var(--bg-card); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow);
-    margin-bottom: 24px;
-  }
-  .panel-title {
-    font-size: 14px; font-weight: 600; color: var(--text-secondary);
-    text-transform: uppercase; letter-spacing: 0.05em;
-    margin-bottom: 16px; padding-bottom: 12px;
-    border-bottom: 1px solid var(--border);
-    display: flex; justify-content: space-between; align-items: center;
-  }
-  .main-grid {
-    display: grid; grid-template-columns: 1.5fr 1fr; gap: 24px; margin-bottom: 24px;
-  }
-  @media (max-width: 768px) { .main-grid { grid-template-columns: 1fr; } }
-
-  /* Workflow items */
-  .wf-item {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 10px 0; border-bottom: 1px solid rgba(51,65,85,0.5);
-    cursor: pointer; transition: background 0.15s;
-  }
-  .wf-item:hover { background: var(--bg-hover); margin: 0 -12px; padding: 10px 12px; border-radius: 4px; }
-  .wf-item:last-child { border-bottom: none; }
-  .wf-info { display: flex; flex-direction: column; gap: 2px; }
-  .wf-name { font-size: 14px; font-weight: 500; }
-  .wf-meta { font-size: 12px; color: var(--text-muted); }
-  .wf-right { display: flex; align-items: center; gap: 10px; }
-  .status-icon { font-size: 16px; }
-  .status-icon.success { color: var(--success); }
-  .status-icon.failure { color: var(--error); }
-  .status-icon.cancelled { color: var(--text-muted); }
-  .status-icon.pending { color: var(--warning); }
-
-  /* Buttons */
-  .btn {
-    padding: 6px 14px; border: none; border-radius: var(--radius);
-    font-size: 12px; font-weight: 500; cursor: pointer;
-    transition: all 0.15s; white-space: nowrap;
-  }
-  .btn-primary { background: var(--accent); color: white; }
-  .btn-primary:hover { background: var(--accent-hover); }
-  .btn-secondary { background: var(--bg-hover); color: var(--text-primary); border: 1px solid var(--border); }
-  .btn-secondary:hover { background: var(--border); }
-  .btn-sm { padding: 4px 10px; font-size: 11px; }
-
-  /* Agent registry */
-  .agent-category { margin-bottom: 16px; }
-  .agent-category-title {
-    font-size: 13px; font-weight: 600; color: var(--text-secondary);
-    margin-bottom: 8px; display: flex; align-items: center; gap: 6px;
-  }
-  .agent-list { display: flex; flex-wrap: wrap; gap: 6px; }
-  .agent-tag {
-    padding: 4px 10px; border-radius: 4px; font-size: 12px;
-    background: var(--accent-dim); color: var(--accent-hover);
-    cursor: pointer; transition: all 0.15s;
-  }
-  .agent-tag:hover { background: var(--accent); color: white; }
-
-  /* Activity */
-  .activity-item {
-    padding: 10px 0; border-bottom: 1px solid rgba(51,65,85,0.5); font-size: 13px;
-  }
-  .activity-item:last-child { border-bottom: none; }
-  .activity-time { font-size: 11px; color: var(--text-muted); }
-
-  /* Quick actions */
-  .quick-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-
-  /* List items for prompts/agents */
-  .list-item {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 12px 0; border-bottom: 1px solid rgba(51,65,85,0.5);
-    cursor: pointer; transition: background 0.15s;
-  }
-  .list-item:hover { background: var(--bg-hover); margin: 0 -12px; padding: 12px; border-radius: 4px; }
-  .list-item:last-child { border-bottom: none; }
-  .list-item .primary { font-size: 14px; font-weight: 500; }
-  .list-item .secondary { font-size: 12px; color: var(--text-muted); }
-  .list-item .badge {
-    display: inline-block; padding: 2px 8px; border-radius: 4px;
-    font-size: 11px; background: var(--accent-dim); color: var(--accent-hover);
-  }
-  .list-item .badge.green { background: rgba(34,197,94,0.15); color: var(--success); }
-  .list-item .badge.yellow { background: rgba(234,179,8,0.15); color: var(--warning); }
-  .list-item .badge.purple { background: rgba(168,85,247,0.15); color: #a855f7; }
-
-  /* Search */
-  .search-bar {
-    width: 100%; padding: 10px 14px; border: 1px solid var(--border);
-    border-radius: var(--radius); background: var(--bg-primary);
-    color: var(--text-primary); font-size: 14px; outline: none;
-    margin-bottom: 16px;
-  }
-  .search-bar:focus { border-color: var(--accent); }
-
-  /* Detail view */
-  .detail-view {
-    background: var(--bg-primary); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 20px; margin-top: 16px;
-    overflow-x: auto;
-  }
-  .detail-view pre {
-    font-family: 'SF Mono', 'Cascadia Code', monospace; font-size: 12px;
-    line-height: 1.5; color: var(--text-primary); white-space: pre-wrap;
-    word-break: break-word;
-  }
-  .detail-view h4 { color: var(--accent-hover); margin-bottom: 8px; }
-  .detail-view .meta-grid {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 12px; margin-bottom: 16px;
-  }
-  .detail-view .meta-item { font-size: 13px; }
-  .detail-view .meta-label { color: var(--text-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; }
-
-  /* Grid for browse */
-  .browse-grid {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
-  }
-  @media (max-width: 900px) { .browse-grid { grid-template-columns: 1fr; } }
-
-  .last-updated { font-size: 12px; color: var(--text-muted); text-align: center; margin-top: 32px; padding: 16px; border-top: 1px solid var(--border); }
-  .loading { text-align: center; padding: 40px; color: var(--text-muted); font-size: 14px; }
-  .loading::after { content: ''; display: inline-block; width: 16px; height: 16px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin-left: 8px; vertical-align: middle; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .error-text { color: var(--error); font-size: 12px; }
-  .success-text { color: var(--success); font-size: 12px; }
-  a { color: var(--accent-hover); text-decoration: none; }
-  a:hover { text-decoration: underline; }
-  .flex { display: flex; align-items: center; gap: 8px; }
-  .wrap { flex-wrap: wrap; }
-  .gap { gap: 12px; }
-  .mb { margin-bottom: 16px; }
-  .mt { margin-top: 16px; }
-  .text-muted { color: var(--text-muted); }
-  .text-sm { font-size: 12px; }
-  .empty-state { text-align: center; padding: 40px; color: var(--text-muted); font-size: 14px; }
-
-  /* Modal */
-  .modal-overlay {
-    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6);
-    align-items: center; justify-content: center; z-index: 1000;
-  }
-  .modal-overlay.active { display: flex; }
-  .modal {
-    background: var(--bg-secondary); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 24px; width: 90%; max-width: 520px;
-    max-height: 80vh; overflow-y: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-    position: relative;
-  }
-  .modal h3 { margin-bottom: 16px; font-size: 16px; }
-  .modal .field { margin-bottom: 12px; }
-  .modal label { display: block; font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
-  .modal input, .modal select, .modal textarea {
-    width: 100%; padding: 8px 10px; border: 1px solid var(--border);
-    border-radius: 4px; background: var(--bg-primary); color: var(--text-primary);
-    font-size: 13px; outline: none;
-  }
-  .modal input:focus, .modal select:focus { border-color: var(--accent); }
-  .modal textarea { min-height: 80px; resize: vertical; }
-  .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
-  .close-btn {
-    position: absolute; top: 12px; right: 12px;
-    background: none; border: none; color: var(--text-secondary);
-    font-size: 22px; cursor: pointer;
-  }
-  .back-btn {
-    background: none; border: none; color: var(--accent-hover);
-    cursor: pointer; font-size: 13px; padding: 0; margin-bottom: 8px; display: inline-block;
-  }
-  .back-btn:hover { text-decoration: underline; }
-</style>
+<link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+<link rel="stylesheet" href="css/phoenix.css">
 </head>
 <body>
 <div class="container">
   <header>
-    <div class="logo"><span class="logo-icon">&#x1F525;</span> Phoenix AI Software Factory</div>
+    <div class="logo"><img src="assets/logo.svg" alt="Phoenix" width="32" height="32"> Phoenix AI Software Factory</div>
     <div class="right">
       <span class="status-badge"><span class="status-dot"></span> All systems operational</span>
       <input type="password" class="pat-input" id="patInput" placeholder="GitHub PAT" autocomplete="off">
@@ -262,518 +18,110 @@
     </div>
   </header>
 
-  <div class="tabs" id="tabNav">
-    <button class="tab active" data-tab="dashboard">Dashboard</button>
-    <button class="tab" data-tab="workflows">Workflows <span style="font-size:11px;color:var(--text-muted)" id="tabWfCount"></span></button>
-    <button class="tab" data-tab="prompts">Prompts <span style="font-size:11px;color:var(--text-muted)" id="tabPromptCount"></span></button>
-    <button class="tab" data-tab="agents">Agents <span style="font-size:11px;color:var(--text-muted)" id="tabAgentCount"></span></button>
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" data-tab="dashboard" aria-selected="true" tabindex="0">Dashboard</button>
+    <button class="tab" role="tab" data-tab="workflows" aria-selected="false" tabindex="-1">Workflows <span class="text-muted text-sm" id="tabWfCount"></span></button>
+    <button class="tab" role="tab" data-tab="prompts" aria-selected="false" tabindex="-1">Prompts <span class="text-muted text-sm" id="tabPromptCount"></span></button>
+    <button class="tab" role="tab" data-tab="agents" aria-selected="false" tabindex="-1">Agents <span class="text-muted text-sm" id="tabAgentCount"></span></button>
   </div>
 
-  <!-- ====== DASHBOARD ====== -->
-  <div class="tab-page active" id="page-dashboard">
-    <div class="stats-row" id="statsRow">
-      <div class="stat-card clickable" onclick="switchTab('agents')"><div class="stat-value" id="statAgents">—</div><div class="stat-label">Agents</div></div>
-      <div class="stat-card clickable" onclick="switchTab('workflows')"><div class="stat-value" id="statWorkflows">—</div><div class="stat-label">Workflows</div></div>
-      <div class="stat-card clickable" onclick="switchTab('prompts')"><div class="stat-value" id="statPrompts">—</div><div class="stat-label">Prompts</div></div>
+  <!-- Dashboard -->
+  <div class="tab-page" id="page-dashboard" role="tabpanel" aria-hidden="false">
+    <div class="stats-row">
+      <div class="stat-card" tabindex="0" role="button" onclick="switchTab('agents')" onkeydown="if(event.key==='Enter')switchTab('agents')"><div class="stat-value" id="statAgents">—</div><div class="stat-label">Agents</div></div>
+      <div class="stat-card" tabindex="0" role="button" onclick="switchTab('workflows')" onkeydown="if(event.key==='Enter')switchTab('workflows')"><div class="stat-value" id="statWorkflows">—</div><div class="stat-label">Workflows</div></div>
+      <div class="stat-card" tabindex="0" role="button" onclick="switchTab('prompts')" onkeydown="if(event.key==='Enter')switchTab('prompts')"><div class="stat-value" id="statPrompts">—</div><div class="stat-label">Prompts</div></div>
       <div class="stat-card"><div class="stat-value" id="statLOC">—</div><div class="stat-label">YAML Lines</div></div>
     </div>
     <div class="main-grid">
-      <div class="panel">
-        <div class="panel-title">Workflows <span class="count" id="wfCount"></span></div>
-        <div id="workflowList"><div class="loading">Loading workflows</div></div>
-      </div>
-      <div class="panel">
-        <div class="panel-title">Agent Registry <span class="count" id="agentCount"></span></div>
-        <div id="agentList"><div class="loading">Loading agents</div></div>
-      </div>
+      <div class="panel"><div class="panel-title">Workflows <span class="text-muted text-sm" id="wfCount"></span></div><div id="workflowList"><div class="loading" aria-label="Loading workflows">Loading</div></div></div>
+      <div class="panel"><div class="panel-title">Agent Registry <span class="text-muted text-sm" id="agentCount"></span></div><div id="agentList"><div class="loading" aria-label="Loading agents">Loading</div></div></div>
     </div>
-    <div class="panel">
-      <div class="panel-title">Activity Feed</div>
-      <div id="activityFeed"><div class="loading">Loading recent runs</div></div>
-    </div>
-    <div class="panel">
-      <div class="panel-title">Quick Actions</div>
+    <div class="panel"><div class="panel-title">Activity Feed</div><div id="activityFeed"><div class="loading" aria-label="Loading activity">Loading</div></div></div>
+    <div class="panel"><div class="panel-title">Quick Actions</div>
       <div class="quick-actions">
-        <button class="btn btn-primary" onclick="quickTrigger('wf-013-quality-assurance.yml',{})">&#x1F50D; Run QA (WF-013)</button>
-        <button class="btn btn-primary" onclick="quickTrigger('wf-014-repository-health.yml',{})">&#x1F4CB; Health Check (WF-014)</button>
-        <button class="btn btn-primary" onclick="quickTrigger('wf-011-documentation.yml',{doc_type:'full'})">&#x1F4DD; Generate Docs (WF-011)</button>
-        <button class="btn btn-primary" onclick="quickTrigger('wf-017-monitoring.yml',{})">&#x1F4CA; Monitor (WF-017)</button>
+        <button class="btn btn-primary" onclick="window.quickTrigger('wf-013-quality-assurance.yml',{})">&#x1F50D; Run QA (WF-013)</button>
+        <button class="btn btn-primary" onclick="window.quickTrigger('wf-014-repository-health.yml',{})">&#x1F4CB; Health Check (WF-014)</button>
+        <button class="btn btn-primary" onclick="window.quickTrigger('wf-011-documentation.yml',{doc_type:'full'})">&#x1F4DD; Generate Docs (WF-011)</button>
+        <button class="btn btn-primary" onclick="window.quickTrigger('wf-017-monitoring.yml',{})">&#x1F4CA; Monitor (WF-017)</button>
         <button class="btn btn-secondary" onclick="window.open('https://github.com/Hernandoworks/Chatgpt/actions','_blank')">&#x2197; GitHub Actions</button>
         <button class="btn btn-secondary" onclick="window.open('https://github.com/Hernandoworks/Chatgpt','_blank')">&#x2197; Repository</button>
       </div>
     </div>
   </div>
 
-  <!-- ====== WORKFLOWS ====== -->
-  <div class="tab-page" id="page-workflows">
+  <!-- Workflows -->
+  <div class="tab-page" id="page-workflows" role="tabpanel" aria-hidden="true">
     <div class="panel">
-      <div class="panel-title">Workflow Manager <span class="count" id="wfMgrCount"></span></div>
-      <input type="text" class="search-bar" id="wfSearch" placeholder="Search workflows by name, trigger, or agent..." oninput="renderWorkflowManager()">
-      <div id="workflowManagerList"><div class="loading">Loading workflows...</div></div>
+      <div class="panel-title">Workflow Manager <span class="text-muted text-sm" id="wfMgrCount"></span></div>
+      <input type="text" class="search-bar" id="wfSearch" placeholder="Search by name, trigger, or agent..." aria-label="Search workflows">
+      <div id="workflowManagerList"><div class="loading" aria-label="Loading workflows">Loading</div></div>
     </div>
-    <div id="wfDetail" class="detail-view" style="display:none"></div>
+    <div id="wfDetail" class="detail-view" style="display:none" aria-label="Workflow detail"></div>
   </div>
 
-  <!-- ====== PROMPTS ====== -->
-  <div class="tab-page" id="page-prompts">
+  <!-- Prompts -->
+  <div class="tab-page" id="page-prompts" role="tabpanel" aria-hidden="true">
     <div class="panel">
-      <div class="panel-title">Prompt Library <span class="count" id="promptMgrCount"></span></div>
-      <input type="text" class="search-bar" id="promptSearch" placeholder="Search prompts by name, agent, or output type..." oninput="renderPromptManager()">
-      <div id="promptManagerList"><div class="loading">Loading prompts...</div></div>
+      <div class="panel-title">Prompt Library <span class="text-muted text-sm" id="promptMgrCount"></span></div>
+      <input type="text" class="search-bar" id="promptSearch" placeholder="Search by name, agent, or output..." aria-label="Search prompts">
+      <div id="promptManagerList"><div class="loading" aria-label="Loading prompts">Loading</div></div>
     </div>
-    <div id="promptDetail" class="detail-view" style="display:none"></div>
+    <div id="promptDetail" class="detail-view" style="display:none" aria-label="Prompt detail"></div>
   </div>
 
-  <!-- ====== AGENTS ====== -->
-  <div class="tab-page" id="page-agents">
+  <!-- Agents -->
+  <div class="tab-page" id="page-agents" role="tabpanel" aria-hidden="true">
     <div class="panel">
-      <div class="panel-title">Agent Registry <span class="count" id="agentMgrCount"></span></div>
-      <input type="text" class="search-bar" id="agentSearch" placeholder="Search agents by name, layer, mission, or prompt..." oninput="renderAgentManager()">
-      <div id="agentManagerList"><div class="loading">Loading agents...</div></div>
+      <div class="panel-title">Agent Registry <span class="text-muted text-sm" id="agentMgrCount"></span></div>
+      <input type="text" class="search-bar" id="agentSearch" placeholder="Search by name, layer, or mission..." aria-label="Search agents">
+      <div id="agentManagerList"><div class="loading" aria-label="Loading agents">Loading</div></div>
     </div>
-    <div id="agentDetail" class="detail-view" style="display:none"></div>
+    <div id="agentDetail" class="detail-view" style="display:none" aria-label="Agent detail"></div>
   </div>
 
   <div class="last-updated">Last updated: <span id="lastUpdated">—</span> &middot; Auto-refreshes every 30s</div>
 </div>
 
-<div class="modal-overlay" id="modalOverlay">
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay" aria-hidden="true" role="dialog" aria-modal="true">
   <div class="modal">
-    <button class="close-btn" onclick="closeModal()">&times;</button>
+    <button class="close-btn" onclick="closeModal()" aria-label="Close">&times;</button>
     <h3 id="modalTitle">Run Workflow</h3>
     <div id="modalBody"></div>
-    <div id="modalStatus"></div>
+    <div id="modalStatus" aria-live="polite"></div>
     <div class="modal-actions">
       <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-primary" id="modalConfirmBtn" onclick="confirmTrigger()">Run Workflow</button>
+      <button class="btn btn-primary" id="modalConfirmBtn">Run Workflow</button>
     </div>
   </div>
 </div>
 
-<script>
-const OWNER = 'Hernandoworks'; const REPO = 'Chatgpt';
-const BASE = `https://api.github.com/repos/${OWNER}/${REPO}`;
-const RAW = `https://raw.githubusercontent.com/${OWNER}/${REPO}/main`;
+<script type="module">
+import { init, switchTab, closeModal, showToast, setTokenStatus } from './js/app.js';
+import { loadDashboard } from './js/dashboard.js';
+import { renderWorkflowManager } from './js/workflows.js';
+import { loadPrompts } from './js/prompts.js';
+import { loadAgents } from './js/agents.js';
 
-let allWorkflows = []; let allRuns = []; let agentData = []; let promptFiles = [];
-let agendaMappings = [];
-let wfDetailShown = null; let promptDetailShown = null; let agentDetailShown = null;
-
-function getToken() {
-  const t = document.getElementById('patInput').value;
-  const s = sessionStorage.getItem('phoenix_pat');
-  if (t) { sessionStorage.setItem('phoenix_pat', t); return t; }
-  if (s) { document.getElementById('patInput').value = s; return s; }
-  return '';
-}
-
-function api(path, opts = {}) {
-  const token = getToken();
-  const headers = { Accept: 'application/vnd.github.v3+json' };
-  if (token) headers.Authorization = `Bearer ${token}`;
-  return fetch(`${BASE}${path}`, { ...opts, headers })
-    .then(r => { if (!r.ok && r.status === 401) { document.getElementById('patStatus').textContent = 'Invalid token'; document.getElementById('patStatus').style.color = 'var(--error)'; } return r.json(); })
-    .catch(e => { console.error('API error:', e); return null; });
-}
-
-function fetchRaw(path) { return fetch(`${RAW}/${path}`).then(r => r.ok ? r.text() : '').catch(() => ''); }
-
-function ago(dateStr) {
-  if (!dateStr) return 'never';
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return 'just now'; if (mins < 60) return `${mins}m ago`;
-  const hrs = Math.floor(mins / 60); if (hrs < 24) return `${hrs}h ago`;
-  return `${Math.floor(hrs / 24)}d ago`;
-}
-
-function iconFor(conclusion) {
-  if (!conclusion) return '<span class="status-icon pending">&#x23F3;</span>';
-  if (conclusion === 'success') return '<span class="status-icon success">&#x2705;</span>';
-  if (conclusion === 'failure' || conclusion === 'cancelled') return '<span class="status-icon failure">&#x274C;</span>';
-  return '<span class="status-icon pending">&#x23F3;</span>';
-}
-
-// Tab switching
-document.querySelectorAll('.tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
-    tab.classList.add('active');
-    document.getElementById(`page-${tab.dataset.tab}`).classList.add('active');
-  });
-});
-function switchTab(name) { document.querySelector(`.tab[data-tab="${name}"]`).click(); }
-
-// ====== DASHBOARD ======
-async function loadDashboard() {
-  const [wfs, runs] = await Promise.all([
-    api('/actions/workflows?per_page=50').then(d => d?.workflows || []),
-    api('/actions/runs?per_page=15').then(d => d?.workflow_runs || [])
-  ]);
-  allWorkflows = wfs; allRuns = runs;
-
-  document.getElementById('statWorkflows').textContent = allWorkflows.length;
-  document.getElementById('statPrompts').textContent = promptFiles.length;
-  document.getElementById('statAgents').textContent = agentData.length;
-  document.getElementById('statLOC').textContent = '2616';
-  document.getElementById('wfCount').textContent = `(${allWorkflows.length})`;
-  document.getElementById('agentCount').textContent = `(${agentData.length})`;
-  document.getElementById('tabWfCount').textContent = `(${allWorkflows.length})`;
-  document.getElementById('tabPromptCount').textContent = `(${promptFiles.length})`;
-  document.getElementById('tabAgentCount').textContent = `(${agentData.length})`;
-
-  let wfHtml = '';
-  const runMap = {};
-  for (const r of runs) if (!runMap[r.name]) runMap[r.name] = r;
-  for (const wf of allWorkflows) {
-    const run = runMap[wf.name];
-    wfHtml += `<div class="wf-item" onclick="switchTab('workflows');showWfDetail('${wf.id}')">
-      <div class="wf-info"><div class="wf-name">${wf.name.replace('.yml','')}</div>
-        <div class="wf-meta">${run ? 'Last: ' + ago(run.run_started_at) : 'Never run'}</div></div>
-      <div class="wf-right">${iconFor(run?.conclusion)}
-        <button class="btn btn-primary btn-sm" onclick="event.stopPropagation();switchTab('workflows');showWfDetail('${wf.id}')">View</button></div></div>`;
-  }
-  document.getElementById('workflowList').innerHTML = wfHtml || '<div class="empty-state">No workflows found</div>';
-
-  const layers = [
-    { title: '\uD83C\uDFD7\uFE0F Engineering', agents: agentData.filter(a => a.layer === 'engineering').map(a => a.name) },
-    { title: '\uD83C\uDFA8 Design', agents: agentData.filter(a => a.layer === 'design').map(a => a.name) },
-    { title: '\uD83D\uDCCB Business', agents: agentData.filter(a => a.layer === 'business').map(a => a.name) },
-    { title: '\uD83D\uDCCB Product', agents: agentData.filter(a => a.layer === 'product').map(a => a.name) }
-  ];
-  let agentHtml = '';
-  for (const layer of layers) {
-    if (!layer.agents.length) continue;
-    agentHtml += `<div class="agent-category"><div class="agent-category-title">${layer.title} <span style="font-size:11px;color:var(--text-muted)">(${layer.agents.length})</span></div>
-      <div class="agent-list">${layer.agents.map(a => `<span class="agent-tag" onclick="switchTab('agents');showAgentDetail('${a}')">${a}</span>`).join('')}</div></div>`;
-  }
-  document.getElementById('agentList').innerHTML = agentHtml || '<div class="empty-state">No agents loaded</div>';
-
-  let activityHtml = '';
-  for (const r of runs.slice(0, 12)) {
-    const wfName = r.name ? r.name.replace('.yml','').replace(/-/g,' ').replace(/\b\w/g,c=>c.toUpperCase()) : 'Workflow';
-    activityHtml += `<div class="activity-item"><div>${iconFor(r.conclusion)} ${wfName} — <span style="color:var(--text-secondary)">${r.conclusion || 'running'}</span></div>
-      <div class="activity-time">${ago(r.run_started_at)} &middot; <a href="${r.html_url}" target="_blank">View run</a></div></div>`;
-  }
-  document.getElementById('activityFeed').innerHTML = activityHtml || '<div class="empty-state">No recent activity</div>';
-  document.getElementById('lastUpdated').textContent = new Date().toLocaleTimeString();
-}
-
-// ====== WORKFLOW MANAGER ======
-const WF_META = {
-  'wf-001-repo-bootstrap.yml': { id:'WF-001', desc:'Create and configure a new repository', agent:'repository-engineer', trigger:'workflow_dispatch' },
-  'wf-002-project-planning.yml': { id:'WF-002', desc:'Read backlog, generate sprint plan, prioritize tasks', agent:'project-manager', trigger:'workflow_dispatch, schedule' },
-  'wf-003-task-orchestration.yml': { id:'WF-003', desc:'Detect phoenix/* labels, assign agents, create branches', agent:'agent-orchestrator', trigger:'issues: labeled' },
-  'wf-004-ai-planning.yml': { id:'WF-004', desc:'Load prompt + context, call DeepSeek, post planning report', agent:'agent-orchestrator', trigger:'workflow_dispatch, issue' },
-  'wf-005-ai-implementation.yml': { id:'WF-005', desc:'Generate code via AI, validate, open draft PR', agent:'ui-engineer', trigger:'workflow_dispatch' },
-  'wf-006-component-generator.yml': { id:'WF-006', desc:'Scaffold React component with tests and stories', agent:'ui-engineer', trigger:'workflow_dispatch' },
-  'wf-007-workbook-generator.yml': { id:'WF-007', desc:'Generate Google Sheets or Apps Script', agent:'workflow-engineer', trigger:'workflow_dispatch' },
-  'wf-008-web-app-generator.yml': { id:'WF-008', desc:'Scaffold Next.js 16 application', agent:'solution-architect', trigger:'workflow_dispatch' },
-  'wf-009-api-generator.yml': { id:'WF-009', desc:'Generate API service with validation and types', agent:'api-engineer', trigger:'workflow_dispatch' },
-  'wf-010-database-generator.yml': { id:'WF-010', desc:'Create SQL migrations (up/down/seed)', agent:'database-engineer', trigger:'workflow_dispatch' },
-  'wf-011-documentation.yml': { id:'WF-011', desc:'Auto-update README, CHANGELOG, API docs', agent:'documentation-engineer', trigger:'workflow_dispatch, push' },
-  'wf-012-code-review.yml': { id:'WF-012', desc:'AI review of PR diffs with structured comments', agent:'quality-engineer', trigger:'pull_request' },
-  'wf-013-quality-assurance.yml': { id:'WF-013', desc:'TypeCheck, lint, test, format, build, audit', agent:'quality-engineer', trigger:'pull_request, push' },
-  'wf-014-repository-health.yml': { id:'WF-014', desc:'Scan for large files, dupes, doc gaps, unused deps', agent:'repository-engineer', trigger:'workflow_dispatch, schedule' },
-  'wf-015-release.yml': { id:'WF-015', desc:'Version bump, changelog, tag, GitHub Release', agent:'release-manager', trigger:'workflow_dispatch, tag' },
-  'wf-016-deployment.yml': { id:'WF-016', desc:'Deploy to dev/staging/prod via Cloudflare Workers', agent:'devops-engineer', trigger:'workflow_dispatch, release' },
-  'wf-017-monitoring.yml': { id:'WF-017', desc:'Daily workflow stats, test metrics, health report', agent:'devops-engineer', trigger:'schedule, workflow_dispatch' },
-  'wf-018-continuous-improvement.yml': { id:'WF-018', desc:'Analyze bottlenecks, generate recommendations', agent:'quality-engineer', trigger:'schedule, workflow_dispatch' }
-};
-
-function renderWorkflowManager() {
-  const q = (document.getElementById('wfSearch').value || '').toLowerCase();
-  let html = '';
-  for (const wf of allWorkflows) {
-    const meta = WF_META[wf.name] || {};
-    if (q && !wf.name.toLowerCase().includes(q) && !(meta.desc || '').toLowerCase().includes(q) && !(meta.agent || '').includes(q)) continue;
-    html += `<div class="list-item" onclick="showWfDetail('${wf.id}')">
-      <div><div class="primary">${meta.id || wf.name.replace('.yml','')} — ${wf.name.replace('.yml','')}</div>
-        <div class="secondary">${meta.desc || ''} &middot; Agent: ${meta.agent || '—'} &middot; Trigger: ${meta.trigger || wf.name}</div></div>
-      <div class="badge">${meta.id || 'WF-?'}</div></div>`;
-  }
-  document.getElementById('workflowManagerList').innerHTML = html || '<div class="empty-state">No matching workflows</div>';
-  document.getElementById('wfMgrCount').textContent = `(${allWorkflows.length})`;
-}
-
-async function showWfDetail(wfId) {
-  const wf = allWorkflows.find(w => w.id === wfId);
-  if (!wf) return;
-  wfDetailShown = wfId; promptDetailShown = null; agentDetailShown = null;
-  document.getElementById('wfDetail').style.display = 'block';
-  document.getElementById('promptDetail').style.display = 'none';
-  document.getElementById('agentDetail').style.display = 'none';
-  const meta = WF_META[wf.name] || {};
-  const yaml = await api(`/actions/workflows/${wfId}`).then(d => d?.path ? fetchRaw(d.path) : '');
-  const runs = await api(`/actions/workflows/${wfId}/runs?per_page=5`).then(d => d?.workflow_runs || []);
-  let runHtml = '';
-  for (const r of runs) {
-    runHtml += `<div class="flex"><span>${iconFor(r.conclusion)}</span> <span>${ago(r.run_started_at)}</span> <span class="text-muted text-sm">(${r.conclusion || 'running'})</span> <a href="${r.html_url}" target="_blank" class="text-sm">View</a></div>`;
-  }
-  document.getElementById('wfDetail').innerHTML = `
-    <button class="back-btn" onclick="document.getElementById('wfDetail').style.display='none'">&larr; Back to list</button>
-    <div class="meta-grid">
-      <div class="meta-item"><div class="meta-label">Workflow</div>${meta.id || 'WF-?'}</div>
-      <div class="meta-item"><div class="meta-label">Name</div>${wf.name.replace('.yml','')}</div>
-      <div class="meta-item"><div class="meta-label">Agent</div>${meta.agent || '—'}</div>
-      <div class="meta-item"><div class="meta-label">Trigger</div>${meta.trigger || '—'}</div>
-      <div class="meta-item"><div class="meta-label">Status</div>${wf.state}</div>
-      <div class="meta-item"><div class="meta-label">Path</div>${wf.path}</div>
-    </div>
-    <div style="margin-bottom:12px"><div class="meta-label" style="font-size:11px;color:var(--text-muted);text-transform:uppercase;margin-bottom:4px">Description</div>${meta.desc || '—'}</div>
-    <div class="flex wrap mb">
-      <button class="btn btn-primary" onclick="openTrigger('${wf.id}','${wf.name.replace(/'/g,"\\'")}')">&#x25B6; Run Workflow</button>
-      <button class="btn btn-secondary" onclick="window.open('${wf.html_url}','_blank')">&#x2197; Open in GitHub</button>
-    </div>
-    ${runs.length ? `<div style="margin-bottom:12px"><div class="meta-label" style="font-size:11px;color:var(--text-muted);text-transform:uppercase;margin-bottom:4px">Recent Runs</div>${runHtml}</div>` : ''}
-    <h4>Source (YAML)</h4>
-    <pre>${yaml || 'Unable to load YAML source'}</pre>`;
-}
-
-// ====== PROMPT MANAGER ======
-async function loadPrompts() {
-  const list = ['build-api','build-apps-script','build-dashboard','build-google-sheet','build-pipeline','build-sql','build-ui-component','build-web-app','conduct-security-audit','create-migration','design-component','design-system-token','generate-documentation','generate-tests','plan-feature','refactor-code','review-code','triage-request','write-release-notes','write-schema','write-test-plan'];
-  agendaMappings = await fetchRaw('.ai/agenda.json').then(r => { try { return JSON.parse(r).mappings; } catch(e) { return []; } }).catch(() => []);
-  promptFiles = [];
-  for (const name of list) {
-    const content = await fetchRaw(`.ai/prompts/${name}.md`);
-    const frontmatter = {};
-    const fmMatch = content.match(/^---\n([\s\S]*?)\n---/);
-    if (fmMatch) {
-      for (const line of fmMatch[1].split('\n')) {
-        const [k,...v] = line.split(':');
-        if (k) frontmatter[k.trim()] = v.join(':').trim().replace(/^\[|\]$/g,'');
-      }
-    }
-    const firstHeading = content.match(/^# .+/m);
-    const title = firstHeading ? firstHeading[0].replace(/^#\s*/,'') : name;
-    const usedBy = agendaMappings.filter(m => (m.prompts || []).includes(name)).map(m => m.agent);
-    promptFiles.push({ id: name, title, content, frontmatter, usedBy, agents: frontmatter.agents || [], version: frontmatter.version || '1.0.0', output: frontmatter.output || '' });
-  }
-  renderPromptManager();
-}
-
-function renderPromptManager() {
-  const q = (document.getElementById('promptSearch').value || '').toLowerCase();
-  let html = '';
-  for (const p of promptFiles) {
-    if (q && !p.title.toLowerCase().includes(q) && !p.id.includes(q) && !p.agents.join(' ').includes(q)) continue;
-    html += `<div class="list-item" onclick="showPromptDetail('${p.id}')">
-      <div><div class="primary">${p.title}</div>
-        <div class="secondary flex wrap gap">${p.agents.length ? p.agents.split(',').slice(0,3).map(a => `<span class="badge">${a.trim()}</span>`).join('') : ''} <span class="text-muted">v${p.version}</span> <span class="text-muted">${p.output || ''}</span></div></div>
-      <div class="flex gap"><span class="badge ${p.usedBy.length > 0 ? 'green' : ''}">${p.usedBy.length} agents</span></div></div>`;
-  }
-  document.getElementById('promptManagerList').innerHTML = html || '<div class="empty-state">No matching prompts</div>';
-  document.getElementById('promptMgrCount').textContent = `(${promptFiles.length})`;
-}
-
-async function showPromptDetail(id) {
-  const p = promptFiles.find(x => x.id === id);
-  if (!p) return;
-  promptDetailShown = id; wfDetailShown = null; agentDetailShown = null;
-  document.getElementById('promptDetail').style.display = 'block';
-  document.getElementById('wfDetail').style.display = 'none';
-  document.getElementById('agentDetail').style.display = 'none';
-  const relatedWfs = allWorkflows.filter(w => {
-    const meta = WF_META[w.name];
-    return meta && p.usedBy.some(a => meta.agent === a);
-  });
-  document.getElementById('promptDetail').innerHTML = `
-    <button class="back-btn" onclick="document.getElementById('promptDetail').style.display='none'">&larr; Back to list</button>
-    <div class="meta-grid">
-      <div class="meta-item"><div class="meta-label">ID</div>${p.id}</div>
-      <div class="meta-item"><div class="meta-label">Version</div>v${p.version}</div>
-      <div class="meta-item"><div class="meta-label">Output</div>${p.output || '—'}</div>
-      <div class="meta-item"><div class="meta-label">Variables</div>${p.frontmatter.required_variables || '—'}</div>
-    </div>
-    <div class="flex wrap mb">
-      <span class="meta-label" style="font-size:11px;color:var(--text-muted);text-transform:uppercase">Used By Agents: </span>
-      ${p.usedBy.length ? p.usedBy.map(a => `<span class="agent-tag" onclick="switchTab('agents');showAgentDetail('${a}')">${a}</span>`).join('') : '<span class="text-muted text-sm">None</span>'}
-    </div>
-    ${relatedWfs.length ? `<div class="flex wrap mb"><span class="meta-label" style="font-size:11px;color:var(--text-muted);text-transform:uppercase">Related Workflows: </span>${relatedWfs.map(w => `<span class="badge purple" style="cursor:pointer" onclick="switchTab('workflows');showWfDetail('${w.id}')">${w.name.replace('.yml','')}</span>`).join('')}</div>` : ''}
-    <h4>Template Source</h4>
-    <pre>${p.content || 'Unable to load'}</pre>`;
-}
-
-// ====== AGENT MANAGER ======
-const AGENT_LAYERS = {
-  'agent-orchestrator':'engineering','project-manager':'engineering','solution-architect':'engineering',
-  'repository-engineer':'engineering','ui-engineer':'engineering','api-engineer':'engineering',
-  'database-engineer':'engineering','devops-engineer':'engineering','security-engineer':'engineering',
-  'test-engineer':'engineering','qa-engineer':'engineering','quality-engineer':'engineering',
-  'documentation-engineer':'engineering','prompt-engineer':'engineering','release-manager':'engineering',
-  'ux-designer':'design','visual-designer':'design','interaction-designer':'design',
-  'accessibility-specialist':'design','design-system-engineer':'design',
-  'domain-modeler':'business','workflow-engineer':'business','integration-engineer':'business','data-analyst':'business',
-  'product-manager':'product','user-researcher':'product','technical-writer':'product'
-};
-const AGENT_ICONS = { engineering:'\uD83C\uDFD7\uFE0F', design:'\uD83C\uDFA8', business:'\uD83D\uDCCB', product:'\uD83D\uDCCB' };
-
-async function loadAgents() {
-  const agentIds = Object.keys(AGENT_LAYERS);
-  for (const id of agentIds) {
-    const file = AGENT_LAYERS[id] === 'engineering' ? `engineering/${id}` : `${AGENT_LAYERS[id]}/${id}`;
-    const content = await fetchRaw(`.ai/agents/${file}.md`);
-    const mission = content.match(/## Mission\n\n(.+)/)?.[1] || '';
-    const mapping = agendaMappings.find(m => m.agent === id) || {};
-    const relatedWfs = allWorkflows.filter(w => (WF_META[w.name] || {}).agent === id).map(w => w.name.replace('.yml',''));
-    agentData.push({ id, name: id.replace(/-/g,' ').replace(/\b\w/g,c=>c.toUpperCase()), layer: AGENT_LAYERS[id], mission: mission.substring(0,150), content, mapping, relatedWfs: mapping.workflows || relatedWfs, prompts: mapping.prompts || [], validators: mapping.validators || [], triggers: mapping.triggers || [] });
-  }
-  renderAgentManager();
-  loadDashboard();
-}
-
-function renderAgentManager() {
-  const q = (document.getElementById('agentSearch').value || '').toLowerCase();
-  const layers = ['engineering','design','business','product'];
-  const layerNames = { engineering:'Engineering', design:'Design', business:'Business', product:'Product' };
-  let html = '';
-  for (const layer of layers) {
-    const agents = agentData.filter(a => a.layer === layer && (!q || a.name.toLowerCase().includes(q) || a.mission.toLowerCase().includes(q)));
-    if (!agents.length && q) continue;
-    html += `<div class="agent-category"><div class="agent-category-title">${AGENT_ICONS[layer]} ${layerNames[layer]} <span class="text-muted text-sm">(${agents.length})</span></div>
-      <div class="agent-list">${agents.map(a => `<span class="agent-tag" onclick="showAgentDetail('${a.id}')">${a.name}</span>`).join('')}</div></div>`;
-  }
-  document.getElementById('agentManagerList').innerHTML = html || '<div class="empty-state">No matching agents</div>';
-  document.getElementById('agentMgrCount').textContent = `(${agentData.length})`;
-}
-
-async function showAgentDetail(id) {
-  const a = agentData.find(x => x.id === id);
-  if (!a) return;
-  agentDetailShown = id; wfDetailShown = null; promptDetailShown = null;
-  document.getElementById('agentDetail').style.display = 'block';
-  document.getElementById('wfDetail').style.display = 'none';
-  document.getElementById('promptDetail').style.display = 'none';
-  const layerNames = { engineering:'Engineering', design:'Design', business:'Business', product:'Product' };
-  const relatedPrompts = promptFiles.filter(p => a.prompts.includes(p.id) || a.prompts.includes(p.id.replace('.md','')));
-  const relatedWfs = allWorkflows.filter(w => (WF_META[w.name] || {}).agent === a.id);
-  document.getElementById('agentDetail').innerHTML = `
-    <button class="back-btn" onclick="document.getElementById('agentDetail').style.display='none'">&larr; Back to list</button>
-    <div class="meta-grid">
-      <div class="meta-item"><div class="meta-label">Agent</div>${a.name}</div>
-      <div class="meta-item"><div class="meta-label">ID</div>${a.id}</div>
-      <div class="meta-item"><div class="meta-label">Layer</div>${AGENT_ICONS[a.layer]} ${layerNames[a.layer]}</div>
-      <div class="meta-item"><div class="meta-label">Triggers</div>${(a.triggers||[]).join(', ') || '—'}</div>
-    </div>
-    <div style="margin-bottom:12px"><div class="meta-label" style="font-size:11px;color:var(--text-muted);text-transform:uppercase;margin-bottom:4px">Mission</div>${a.mission || '—'}</div>
-    <div class="flex wrap mb" style="gap:8px">
-      ${a.prompts.length ? `<div><div class="meta-label" style="font-size:11px;color:var(--text-muted);text-transform:uppercase;margin-bottom:4px">Prompts (${a.prompts.length})</div>${a.prompts.map(p => `<span class="badge purple" style="cursor:pointer" onclick="switchTab('prompts');showPromptDetail('${p}')">${p}</span>`).join(' ')}</div>` : ''}
-    </div>
-    <div class="flex wrap mb" style="gap:8px">
-      ${relatedWfs.length ? `<div><div class="meta-label" style="font-size:11px;color:var(--text-muted);text-transform:uppercase;margin-bottom:4px">Workflows (${relatedWfs.length})</div>${relatedWfs.map(w => `<span class="badge" style="cursor:pointer" onclick="switchTab('workflows');showWfDetail('${w.id}')">${w.name.replace('.yml','')}</span>`).join(' ')}</div>` : ''}
-    </div>
-    <div class="flex wrap mb" style="gap:8px">
-      ${a.validators.length ? `<div><div class="meta-label" style="font-size:11px;color:var(--text-muted);text-transform:uppercase;margin-bottom:4px">Validators</div>${a.validators.map(v => `<span class="badge green">${v}</span>`).join(' ')}</div>` : ''}
-    </div>
-    <h4>Agent Definition</h4>
-    <pre>${a.content || 'Unable to load'}</pre>`;
-}
-
-// ====== WORKFLOW TRIGGER ======
-const WF_INPUTS = {
-  'wf-001-repo-bootstrap.yml': { repo_name: 'string', description: 'string', visibility: 'choice:public,private' },
-  'wf-002-project-planning.yml': { sprint_name: 'string', sprint_duration_days: 'string' },
-  'wf-004-ai-planning.yml': { issue_number: 'string', prompt_id: 'choice:triage-request,plan-feature,build-ui-component,build-web-app,build-api,build-sql,generate-documentation,review-code,refactor-code' },
-  'wf-005-ai-implementation.yml': { prompt_id: 'choice:build-ui-component,build-web-app,build-api,build-sql,build-dashboard,build-google-sheet,build-apps-script,refactor-code,generate-tests,generate-documentation', issue_number: 'string', additional_context: 'string' },
-  'wf-006-component-generator.yml': { component_name: 'string', issue_number: 'string' },
-  'wf-007-workbook-generator.yml': { workbook_type: 'choice:google-sheet,apps-script', description: 'string' },
-  'wf-008-web-app-generator.yml': { app_name: 'string', description: 'string' },
-  'wf-009-api-generator.yml': { api_name: 'string', description: 'string' },
-  'wf-010-database-generator.yml': { migration_name: 'string', description: 'string' },
-  'wf-011-documentation.yml': { doc_type: 'choice:readme,api-docs,architecture,changelog,build-summary,full', scope: 'string' },
-  'wf-014-repository-health.yml': {}, 'wf-015-release.yml': { version_bump: 'choice:patch,minor,major', release_title: 'string' },
-  'wf-016-deployment.yml': { environment: 'choice:development,staging,production', ref: 'string', run_smoke_tests: 'choice:true,false' },
-  'wf-017-monitoring.yml': {}, 'wf-018-continuous-improvement.yml': { iteration_label: 'string' },
-  'wf-013-quality-assurance.yml': {}, 'wf-012-code-review.yml': {}, 'wf-003-task-orchestration.yml': {}
-};
-
-function openTrigger(wfId, wfName) {
-  const fname = allWorkflows.find(w => w.id === wfId)?.name || wfName;
-  document.getElementById('modalTitle').textContent = `Run: ${fname}`;
-  pendingWorkflowId = wfId; pendingInputs = {};
-  const fields = WF_INPUTS[fname] || {};
-  let html = '';
-  for (const [key, type] of Object.entries(fields)) {
-    const label = key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-    if (type.startsWith('choice:')) {
-      const opts = type.replace('choice:', '').split(',');
-      html += `<div class="field"><label>${label}</label><select id="input-${key}">${opts.map(o => `<option value="${o}">${o}</option>`).join('')}</select></div>`;
-    } else if (type === 'string' && (key.includes('description') || key.includes('additional_context'))) {
-      html += `<div class="field"><label>${label}</label><textarea id="input-${key}"></textarea></div>`;
-    } else {
-      html += `<div class="field"><label>${label}</label><input type="text" id="input-${key}"></div>`;
-    }
-  }
-  if (!Object.keys(fields).length) html = '<p class="text-muted text-sm">No inputs required for this workflow.</p>';
-  document.getElementById('modalBody').innerHTML = html;
-  document.getElementById('modalStatus').innerHTML = '';
-  document.getElementById('modalOverlay').classList.add('active');
-}
-
-function closeModal() { document.getElementById('modalOverlay').classList.remove('active'); pendingWorkflowId = null; pendingInputs = {}; }
-let pendingWorkflowId = null; let pendingInputs = {};
-
-async function confirmTrigger() {
-  if (!pendingWorkflowId) return;
-  const token = getToken();
-  if (!token) { document.getElementById('modalStatus').innerHTML = '<div class="error-text">Enter a GitHub PAT first.</div>'; return; }
-  const inputs = {};
-  const fname = allWorkflows.find(w => w.id === pendingWorkflowId)?.name || '';
-  const fields = WF_INPUTS[fname] || {};
-  for (const key of Object.keys(fields)) { const el = document.getElementById(`input-${key}`); if (el) inputs[key] = el.value; }
-  document.getElementById('modalConfirmBtn').disabled = true;
-  document.getElementById('modalConfirmBtn').textContent = 'Triggering...';
-  document.getElementById('modalStatus').innerHTML = '';
-  try {
-    const res = await fetch(`${BASE}/actions/workflows/${pendingWorkflowId}/dispatches`, {
-      method: 'POST', headers: { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ref: 'main', inputs })
-    });
-    if (res.status === 204) {
-      document.getElementById('modalStatus').innerHTML = '<div class="success-text">Workflow triggered! Reloading...</div>';
-      setTimeout(() => { closeModal(); loadDashboard(); }, 1500);
-    } else {
-      const err = await res.json().catch(() => ({ message: res.statusText }));
-      document.getElementById('modalStatus').innerHTML = `<div class="error-text">Error: ${err.message}</div>`;
-    }
-  } catch (e) { document.getElementById('modalStatus').innerHTML = `<div class="error-text">Error: ${e.message}</div>`; }
-  document.getElementById('modalConfirmBtn').disabled = false;
-  document.getElementById('modalConfirmBtn').textContent = 'Run Workflow';
-}
-
-function quickTrigger(name, inputs) {
-  const token = getToken();
-  if (!token) { document.getElementById('patStatus').textContent = 'Enter PAT first!'; document.getElementById('patStatus').style.color = 'var(--error)'; return; }
-  const wf = allWorkflows.find(w => w.name === name);
-  if (!wf) { document.getElementById('patStatus').textContent = 'Workflow not found: ' + name; document.getElementById('patStatus').style.color = 'var(--error)'; return; }
-  fetch(`${BASE}/actions/workflows/${wf.id}/dispatches`, {
-    method: 'POST', headers: { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
-    body: JSON.stringify({ ref: 'main', inputs })
-  }).then(r => {
-    document.getElementById('patStatus').textContent = r.status === 204 ? '\u2705 Triggered: ' + name : '\u274C Failed: ' + name;
-    document.getElementById('patStatus').style.color = r.status === 204 ? 'var(--success)' : 'var(--error)';
-    if (r.status === 204) setTimeout(loadDashboard, 3000);
-  });
-}
-
-document.getElementById('modalOverlay').addEventListener('click', e => { if (e.target === document.getElementById('modalOverlay')) closeModal(); });
-document.getElementById('patInput').addEventListener('input', () => {
-  const v = document.getElementById('patInput').value;
-  if (v) sessionStorage.setItem('phoenix_pat', v); else sessionStorage.removeItem('phoenix_pat');
-  document.getElementById('patStatus').textContent = v ? '\u2705 Authenticated' : '\u26A0\uFE0F Enter PAT to trigger workflows';
-  document.getElementById('patStatus').style.color = v ? 'var(--success)' : 'var(--text-muted)';
-});
+// Expose functions globally for onclick handlers in HTML
+window.switchTab = switchTab;
+window.closeModal = closeModal;
+window.showToast = showToast;
 
 // Init
-(async function init() {
-  sessionStorage.getItem('phoenix_pat');
-  await loadPrompts();
-  await loadAgents();
-  renderWorkflowManager();
-  setInterval(() => { loadDashboard(); renderWorkflowManager(); }, 30000);
-})();
+init();
+
+// Load data
+const prompts = await loadPrompts();
+window.__promptFiles = prompts;
+
+await loadAgents();
+
+await loadDashboard();
+
+// Auto-refresh
+setInterval(loadDashboard, 30000);
 </script>
 </body>
 </html>
