@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.base.json",
+  "files": [],
+  "references": [
+    { "path": "01-apps/web" },
+    { "path": "02-packages/ui" },
+    { "path": "01-apps/phoenix-investor" }
+  ]
+}

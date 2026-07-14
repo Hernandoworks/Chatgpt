@@ -1,0 +1,266 @@
+{
+  "symbol": "FEX",
+  "name": "Fenix Resources",
+  "sector": "Materials",
+  "industry": "Iron Ore",
+  "price": 0.485,
+  "change": 0.015,
+  "changePercent": 3.19,
+  "marketCap": 312000000,
+  "volume": 4520000,
+  "avgVolume": 3850000,
+  "dividend": {
+    "yield": 8.25,
+    "amount": 0.04,
+    "frequency": "semi-annual",
+    "exDate": "2025-03-10",
+    "payDate": "2025-04-15",
+    "franking": 100
+  },
+  "fundamentals": {
+    "eps": 0.082,
+    "pe": 5.91,
+    "pb": 1.12,
+    "evEbitda": 3.8,
+    "revenue": 245000000,
+    "netIncome": 53000000,
+    "debt": 12000000,
+    "equity": 278000000,
+    "roe": 19.1,
+    "roce": 22.4,
+    "grossMargin": 0.48,
+    "netMargin": 0.216
+  },
+  "production": {
+    "commodity": "Iron Ore",
+    "annualProduction": 4200000,
+    "unit": "wet metric tonnes",
+    "cashCost": 68,
+    "allInCost": 82,
+    "realizedPrice": 112,
+    "guidance": { "low": 4000000, "high": 4500000, "unit": "wmt" },
+    "mineLife": 8,
+    "location": "Western Australia, Iron Ridge"
+  },
+  "cashPosition": {
+    "cash": 84500000,
+    "debt": 12000000,
+    "freeCashFlow": 72000000,
+    "fcfYield": 0.231,
+    "burnRate": 0,
+    "runwayMonths": 999
+  },
+  "valuation": {
+    "fairValue": 0.72,
+    "upside": 48.5,
+    "dcf": {
+      "bullCase": 0.92,
+      "baseCase": 0.72,
+      "bearCase": 0.42,
+      "assumptions": {
+        "ironOrePrice": 105,
+        "productionVolume": 4200000,
+        "cashCost": 68,
+        "audUsd": 0.65,
+        "discountRate": 10,
+        "terminalGrowth": 2,
+        "years": 8
+      }
+    },
+    "comparables": [
+      {
+        "symbol": "FMG",
+        "name": "Fortescue Metals",
+        "evEbitda": 5.2,
+        "pe": 8.1,
+        "pb": 2.3,
+        "dividendYield": 6.8
+      },
+      {
+        "symbol": "CIA",
+        "name": "Champion Iron",
+        "evEbitda": 4.5,
+        "pe": 7.2,
+        "pb": 1.8,
+        "dividendYield": 3.2
+      },
+      {
+        "symbol": "MIN",
+        "name": "Mineral Resources",
+        "evEbitda": 6.1,
+        "pe": 9.8,
+        "pb": 2.8,
+        "dividendYield": 4.1
+      },
+      {
+        "symbol": "GRR",
+        "name": "Grange Resources",
+        "evEbitda": 3.2,
+        "pe": 5.5,
+        "pb": 0.9,
+        "dividendYield": 5.5
+      }
+    ]
+  },
+  "technicals": {
+    "ema20": 0.468,
+    "ema50": 0.445,
+    "ema200": 0.412,
+    "rsi": 62.4,
+    "macd": { "value": 0.008, "signal": 0.005, "histogram": 0.003 },
+    "support": 0.435,
+    "resistance": 0.52,
+    "trendStrength": "strong",
+    "trendDirection": "bullish"
+  },
+  "investmentThesis": {
+    "bullCase": "Iron ore prices remain elevated above $100/t driven by Chinese stimulus and supply constraints from major miners. Fenix achieves record production of 4.5Mt at low costs, generating substantial free cash flow. The company continues its progressive dividend policy, potentially paying 4-5 cps annually. Net cash position grows to $100M+, enabling strategic M&A or special dividends. Re-rating occurs as the market recognises the earnings quality and cash generation capability.",
+    "baseCase": "Iron ore prices moderate to $95-105/t range as supply normalises. Fenix consistently delivers 4.0-4.2Mt production at AISC of ~$82/wmt. Steady cash generation supports 4 cps annual dividend (8%+ yield). Balance sheet remains debt-free (net cash). The stock trades at 4-5x EV/EBITDA, a discount to larger peers, reflecting its smaller size and single-asset risk.",
+    "bearCase": "Iron ore prices fall below $80/t due to a sharp slowdown in Chinese property and infrastructure spending. Fenix' high-cost position relative to majors ($68/t cash cost vs BHP ~$40/t) compresses margins severely. Production guidance is cut. Dividend is reduced or suspended. The stock re-rates down to 3x EBITDA or below. At $70/t iron ore, FEX could trade at $0.30-0.35.",
+    "catalysts": [
+      {
+        "date": "2025-04-20",
+        "title": "Q3 2025 Production Report",
+        "description": "Quarterly production and cash cost update. Market expects 1.05-1.1Mt.",
+        "impact": "high",
+        "probability": 0.9
+      },
+      {
+        "date": "2025-05-15",
+        "title": "Dividend Ex-Date",
+        "description": "Expected 2.0 cps fully franked dividend for H1 FY25.",
+        "impact": "medium",
+        "probability": 0.95
+      },
+      {
+        "date": "2025-07-30",
+        "title": "FY2025 Full-Year Results",
+        "description": "Annual results with production, costs, earnings and dividend declaration.",
+        "impact": "high",
+        "probability": 0.85
+      },
+      {
+        "date": "2025-09-01",
+        "title": "Iron Ridge Extension Study",
+        "description": "Potential resource extension and mine life update at Iron Ridge.",
+        "impact": "medium",
+        "probability": 0.6
+      }
+    ],
+    "risks": [
+      {
+        "category": "Commodity",
+        "title": "Iron Ore Price Decline",
+        "description": "A sustained fall in iron ore prices below cash cost would render operations unprofitable.",
+        "severity": "high",
+        "mitigation": "Low cost base ($68/t FOB) provides buffer; industry-low capex requirements"
+      },
+      {
+        "category": "Operational",
+        "title": "Single Asset Concentration",
+        "description": "Iron Ridge is the sole producing asset; any operational disruption impacts 100% of revenue.",
+        "severity": "high",
+        "mitigation": "Management experienced in WA iron ore; orebody is simple, low strip ratio"
+      },
+      {
+        "category": "Currency",
+        "title": "AUD/USD Appreciation",
+        "description": "A strengthening AUD reduces AUD-denominated revenues from USD-priced iron ore.",
+        "severity": "medium",
+        "mitigation": "Costs also primarily AUD-denominated, providing natural hedge"
+      },
+      {
+        "category": "Regulatory",
+        "title": "Mining Approvals",
+        "description": "Changes to mining regulations, royalties, or environmental approvals in WA.",
+        "severity": "medium",
+        "mitigation": "All current approvals in place; strong relationships with state government"
+      }
+    ]
+  },
+  "quarterlyResults": [
+    {
+      "quarter": "Q1 FY25",
+      "revenue": 62300000,
+      "netIncome": 13800000,
+      "production": 1050000,
+      "cashCost": 66,
+      "realizedPrice": 110,
+      "eps": 0.021
+    },
+    {
+      "quarter": "Q2 FY25",
+      "revenue": 58900000,
+      "netIncome": 12500000,
+      "production": 1020000,
+      "cashCost": 69,
+      "realizedPrice": 106,
+      "eps": 0.019
+    },
+    {
+      "quarter": "Q3 FY25",
+      "revenue": 65100000,
+      "netIncome": 14600000,
+      "production": 1080000,
+      "cashCost": 67,
+      "realizedPrice": 113,
+      "eps": 0.022
+    },
+    {
+      "quarter": "Q4 FY25",
+      "revenue": 63800000,
+      "netIncome": 12100000,
+      "production": 1050000,
+      "cashCost": 70,
+      "realizedPrice": 108,
+      "eps": 0.02
+    },
+    {
+      "quarter": "Q1 FY26",
+      "revenue": 67200000,
+      "netIncome": 15200000,
+      "production": 1100000,
+      "cashCost": 65,
+      "realizedPrice": 115,
+      "eps": 0.023
+    },
+    {
+      "quarter": "Q2 FY26",
+      "revenue": 64500000,
+      "netIncome": 13800000,
+      "production": 1070000,
+      "cashCost": 68,
+      "realizedPrice": 111,
+      "eps": 0.021
+    }
+  ],
+  "researchNotes": [
+    {
+      "id": "rn-001",
+      "title": "FEX: High-Grade Iron Ore at a Discount",
+      "date": "2025-03-15",
+      "author": "Macquarie Research",
+      "summary": "Fenix remains one of the cheapest iron ore exposure in Australia at 3.8x EV/EBITDA. Strong free cash flow generation supports 8%+ dividend yield. Upgrade to Outperform with $0.75 price target.",
+      "rating": "buy",
+      "priceTarget": 0.75
+    },
+    {
+      "id": "rn-002",
+      "title": "Iron Ridge Delivering Consistent Results",
+      "date": "2025-02-28",
+      "author": "Ord Minnett",
+      "summary": "Fenix continues to deliver consistent production from Iron Ridge. Costs remain well controlled. Balance sheet is in outstanding shape with net cash position. Maintain Buy.",
+      "rating": "buy",
+      "priceTarget": 0.7
+    },
+    {
+      "id": "rn-003",
+      "title": "FEX: Valuation Update Post HY Results",
+      "date": "2025-01-20",
+      "author": "Canaccord Genuity",
+      "summary": "HY25 results were in line with expectations. Dividend of 2.0 cps was a positive surprise. Near-term catalysts limited but valuation remains undemanding. Hold rating maintained.",
+      "rating": "hold",
+      "priceTarget": 0.55
+    }
+  ]
+}

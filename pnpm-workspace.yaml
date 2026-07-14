@@ -1,0 +1,8 @@
+packages:
+  - "01-apps/web"
+  - "02-packages/*"
+  - "09-tools/*"
+allowBuilds:
+  esbuild: true
+  sharp: true
+  unrs-resolver: true

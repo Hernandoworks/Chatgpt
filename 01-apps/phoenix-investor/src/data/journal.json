@@ -1,0 +1,85 @@
+{
+  "entries": [
+    {
+      "id": "tj-001",
+      "symbol": "FEX",
+      "type": "buy",
+      "shares": 100000,
+      "price": 0.385,
+      "total": 38500,
+      "date": "2024-08-15",
+      "strategy": "Value — initiated position at attractive valuation",
+      "thesis": "Fenix trading at 3.5x EV/EBITDA with 9% dividend yield. Strong cash generation, net cash balance sheet, and low-cost iron ore production provide downside protection. Iron ore prices supported by supply constraints.",
+      "outcome": "open",
+      "notes": "Initial position. Accumulating on weakness."
+    },
+    {
+      "id": "tj-002",
+      "symbol": "FEX",
+      "type": "buy",
+      "shares": 50000,
+      "price": 0.42,
+      "total": 21000,
+      "date": "2024-10-22",
+      "strategy": "Accumulation — added on pullback",
+      "thesis": "Price pulled back from highs on broader market weakness. Fundamentals unchanged. Increased position size.",
+      "outcome": "open",
+      "notes": "Average cost now $0.396"
+    },
+    {
+      "id": "tj-003",
+      "symbol": "FEX",
+      "type": "buy",
+      "shares": 75000,
+      "price": 0.45,
+      "total": 33750,
+      "date": "2025-01-14",
+      "strategy": "Momentum — strong quarterly results",
+      "thesis": "Q2 results showed record production and lower costs. Dividend declared. Upgraded by Macquarie. Added on strength.",
+      "outcome": "open",
+      "notes": "Average cost now $0.415. Full position size achieved."
+    },
+    {
+      "id": "tj-004",
+      "symbol": "BHP",
+      "type": "buy",
+      "shares": 5000,
+      "price": 42.5,
+      "total": 212500,
+      "date": "2024-06-01",
+      "strategy": "Core holding — diversified miner",
+      "thesis": "Diversified commodities exposure with strong balance sheet and growing copper exposure. Dividend yield attractive.",
+      "outcome": "open",
+      "notes": "Core long-term holding. DRP enabled."
+    },
+    {
+      "id": "tj-005",
+      "symbol": "RIO",
+      "type": "buy",
+      "shares": 4000,
+      "price": 118.2,
+      "total": 472800,
+      "date": "2024-06-01",
+      "strategy": "Core holding — iron ore pure play",
+      "thesis": "Low-cost iron ore producer with strong balance sheet and Oyu Tolgoi copper growth optionality.",
+      "outcome": "closed_win",
+      "exitPrice": 132.5,
+      "exitDate": "2025-02-15",
+      "returnPercent": 12.1,
+      "notes": "Exited on valuation grounds. Iron ore prices near cycle highs."
+    },
+    {
+      "id": "tj-006",
+      "symbol": "FMG",
+      "type": "buy",
+      "shares": 12000,
+      "price": 22.8,
+      "total": 273600,
+      "date": "2024-07-15",
+      "strategy": "Core holding — iron ore + green hydrogen",
+      "thesis": "FMG diversified into green hydrogen/energy while maintaining strong iron ore cash flows. Attractive yield.",
+      "outcome": "open",
+      "notes": "Monitoring green hydrogen capex closely."
+    }
+  ]
+}

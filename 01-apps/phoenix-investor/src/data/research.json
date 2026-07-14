@@ -1,0 +1,44 @@
+{
+  "reports": [
+    {
+      "id": "rpt-001",
+      "title": "Monthly Sector Review: Materials",
+      "date": "2025-03-01",
+      "author": "Research Team",
+      "type": "monthly",
+      "summary": "Iron ore prices stabilised in February around $105/t as Chinese steel production rebounded post-Lunar New Year. Supply disruptions in Brazil provided additional support. Australian iron ore exporters remain well-positioned with weak AUD providing tailwind."
+    },
+    {
+      "id": "rpt-002",
+      "title": "Iron Ore Market Outlook Q2 2025",
+      "date": "2025-02-28",
+      "author": "Commodity Research",
+      "type": "quarterly",
+      "summary": "We maintain a constructive view on iron ore for Q2 2025. Chinese property stabilisation and infrastructure stimulus should support demand. Supply growth remains constrained. Price forecast: $95-110/t."
+    },
+    {
+      "id": "rpt-003",
+      "title": "Fenix Resources: Deep Dive Initiation",
+      "date": "2025-02-15",
+      "author": "Senior Analyst",
+      "type": "initiation",
+      "summary": "Fenix Resources represents a compelling opportunity in the Australian iron ore space. Strong margins, debt-free balance sheet, and 8%+ dividend yield provide a favourable risk/reward at current levels. We initiate with a Buy rating and $0.72 price target."
+    },
+    {
+      "id": "rpt-004",
+      "title": "AUD/USD Macro Outlook",
+      "date": "2025-02-10",
+      "author": "Macro Research",
+      "type": "macro",
+      "summary": "AUD/USD remains pressured by China concerns but supported by commodity prices and RBA rate trajectory. Forecast: 0.64-0.68 range for next quarter. A weaker AUD benefits Australian commodity exporters."
+    },
+    {
+      "id": "rpt-005",
+      "title": "Small Cap Mining Screen: Value Opportunities",
+      "date": "2025-01-25",
+      "author": "Quantitative Research",
+      "type": "screen",
+      "summary": "Our screen of ASX small-cap mining stocks identifies Fenix Resources (FEX) as the top value pick based on EV/EBITDA, FCF yield, and dividend yield metrics. Trading at a 40% discount to larger peers on EV/EBITDA."
+    }
+  ]
+}

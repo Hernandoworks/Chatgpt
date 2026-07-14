@@ -1,0 +1,70 @@
+{
+  "articles": [
+    {
+      "id": "n-001",
+      "title": "Fenix Resources Delivers Record Quarterly Production",
+      "summary": "Fenix Resources has reported record quarterly production of 1.1Mt at its Iron Ridge project, with cash costs falling to $65/wmt. The company remains on track to meet its FY26 guidance of 4.0-4.5Mt.",
+      "source": "Australian Financial Review",
+      "date": "2025-04-12",
+      "url": "#",
+      "sentiment": "positive",
+      "symbols": ["FEX"],
+      "category": "earnings"
+    },
+    {
+      "id": "n-002",
+      "title": "Iron Ore Prices Rally on Chinese Stimulus Hopes",
+      "summary": "Iron ore futures rose above $108/t as China signalled additional infrastructure spending to support economic growth. The rally boosts Australian iron ore miners including BHP, Rio Tinto, and Fortescue.",
+      "source": "Reuters",
+      "date": "2025-04-11",
+      "url": "#",
+      "sentiment": "positive",
+      "symbols": ["BHP", "RIO", "FMG", "FEX"],
+      "category": "commodities"
+    },
+    {
+      "id": "n-003",
+      "title": "AUD Weakens as RBA Holds Rates Steady",
+      "summary": "The Australian dollar fell to $0.648 after the RBA held interest rates steady at 4.10%. The weaker currency provides a tailwind for ASX-listed commodity exporters.",
+      "source": "Bloomberg",
+      "date": "2025-04-10",
+      "url": "#",
+      "sentiment": "neutral",
+      "symbols": ["BHP", "FEX", "RIO", "FMG"],
+      "category": "macro"
+    },
+    {
+      "id": "n-004",
+      "title": "Fenix Resources Declares 2.0 Cents Fully Franked Dividend",
+      "summary": "Fenix Resources has declared an interim dividend of 2.0 cents per share fully franked, representing a payout ratio of approximately 50% of net profit. The stock currently yields 8.25%.",
+      "source": "ASX Announcement",
+      "date": "2025-03-10",
+      "url": "#",
+      "sentiment": "positive",
+      "symbols": ["FEX"],
+      "category": "dividend"
+    },
+    {
+      "id": "n-005",
+      "title": "China Steel Output Rises as Construction Season Begins",
+      "summary": "Chinese steel production rose 3.2% in March as the spring construction season got underway. Demand for iron ore is expected to remain robust through Q2.",
+      "source": "S&P Global",
+      "date": "2025-04-08",
+      "url": "#",
+      "sentiment": "positive",
+      "symbols": ["BHP", "RIO", "FMG", "FEX"],
+      "category": "commodities"
+    },
+    {
+      "id": "n-006",
+      "title": "Iron Ore Supply Constraints Support Prices",
+      "summary": "Ongoing supply disruptions from Brazilian operations and declining grades at Australian mines are supporting iron ore prices above $100/t, benefiting low-cost producers.",
+      "source": "Financial Times",
+      "date": "2025-04-05",
+      "url": "#",
+      "sentiment": "positive",
+      "symbols": ["BHP", "FEX", "FMG", "RIO"],
+      "category": "commodities"
+    }
+  ]
+}
