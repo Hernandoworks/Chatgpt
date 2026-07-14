@@ -1,0 +1,17 @@
+{
+  "name": "phoenix-agents",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-04-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "durable_objects": {
+    "bindings": [
+      { "name": "ChatAgent", "class_name": "ChatAgent" },
+      { "name": "PortfolioAgent", "class_name": "PortfolioAgent" },
+      { "name": "AlertAgent", "class_name": "AlertAgent" }
+    ]
+  },
+  "migrations": [
+    { "tag": "v1", "new_sqlite_classes": ["ChatAgent", "PortfolioAgent", "AlertAgent"] }
+  ],
+  "ai": { "binding": "AI" }
+}

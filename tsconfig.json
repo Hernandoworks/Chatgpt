@@ -4,6 +4,7 @@
   "references": [
     { "path": "01-apps/web" },
     { "path": "02-packages/ui" },
+    { "path": "03-services/agents" },
     { "path": "01-apps/phoenix-investor" }
   ]
 }
