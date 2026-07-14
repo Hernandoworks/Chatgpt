@@ -1,0 +1,31 @@
+area/apps:
+  - changed-files:
+      - any-glob-to-any-file: 01-apps/*
+
+area/packages:
+  - changed-files:
+      - any-glob-to-any-file: 02-packages/*
+
+area/services:
+  - changed-files:
+      - any-glob-to-any-file: 03-services/*
+
+area/database:
+  - changed-files:
+      - any-glob-to-any-file: 04-database/*
+
+area/infra:
+  - changed-files:
+      - any-glob-to-any-file: 05-infra/*
+
+area/docs:
+  - changed-files:
+      - any-glob-to-any-file: 06-docs/*
+
+area/tools:
+  - changed-files:
+      - any-glob-to-any-file: 09-tools/*
+
+area/ci:
+  - changed-files:
+      - any-glob-to-any-file: .github/*
