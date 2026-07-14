@@ -15,7 +15,7 @@
     "commander": "^13.1.0"
   },
   "devDependencies": {
-    "@types/node": "^22.15.3",
+    "@types/node": "^26.1.1",
     "@typescript-eslint/parser": "^8.63.0",
     "typescript": "^5.8.3"
   }
