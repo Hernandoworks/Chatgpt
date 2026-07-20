@@ -13,7 +13,7 @@
   "dependencies": {
     "agents": "^0.17.4",
     "@cloudflare/ai-chat": "^0.9.3",
-    "ai": "^7.0.26",
+    "ai": "^7.0.31",
     "zod": "^3.0.0",
     "workers-ai-provider": "^3.3.1"
   },
